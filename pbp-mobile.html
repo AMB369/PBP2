@@ -564,7 +564,7 @@ function renderCourts(availMap) {
     wrap.innerHTML = `
       <div class="court-header" onclick="this.parentElement.classList.toggle('active-court')">
         <div><div class="court-name">${court.name}</div><div class="court-meta">${court.surface_type} · Court ${court.court_number}</div></div>
-        <div class="court-price">AED ${court.price_per_hour}/hr</div>
+        <div class="court-price">$${court.price_per_hour}/hr</div>
       </div>
       <div class="slots-grid">${slotsHtml}</div>`;
     list.appendChild(wrap);
@@ -589,7 +589,7 @@ function selectSlot(el, courtId, courtName, start, end, pricePerHour, isTaken) {
   selectedSlot = {court_id:courtId, court_name:courtName, start, end, price, price_per_hour:pricePerHour};
   el.className='slot selected';
   document.getElementById('summary-info').textContent = `${courtName} · ${start.split('T')[1].slice(0,5)}–${end.split('T')[1].slice(0,5)}`;
-  document.getElementById('summary-price').textContent = `AED ${price}`;
+  document.getElementById('summary-price').textContent = `$${price}`;
   document.getElementById('summary-bar').classList.remove('hidden');
 }
 
@@ -628,7 +628,7 @@ function openConfirmModal() {
       <div style="font-weight:700;font-size:16px;">${s.court_name}</div>
       <div style="color:var(--muted);font-size:13px;margin-top:4px;">${fmtDate(selectedDate)}</div>
       <div style="color:var(--muted);font-size:13px;">${s.start.split('T')[1].slice(0,5)} – ${s.end.split('T')[1].slice(0,5)}</div>
-      <div style="font-size:20px;font-weight:800;color:var(--accent);margin-top:10px;">AED ${s.price}</div>
+      <div style="font-size:20px;font-weight:800;color:var(--accent);margin-top:10px;">$${s.price}</div>
     </div>`;
   openModal('modal-confirm');
 }
@@ -681,7 +681,7 @@ function renderBookings(bookings) {
       <span class="bc-status status-${b.status}">${b.status.replace('_',' ')}</span>
       <div class="bc-court">${b.court_name}</div>
       <div class="bc-time">${fmtDateTime(b.start_time)} – ${fmtTime(b.end_time)}</div>
-      <div class="bc-price">AED ${b.price}</div>
+      <div class="bc-price">$${b.price}</div>
       ${b.status==='confirmed' && new Date(b.start_time)>new Date() ?
         `<button class="cancel-btn" onclick="cancelBooking('${b.id}')">Cancel Booking</button>` : ''}
     </div>`).join('');

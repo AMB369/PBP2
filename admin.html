@@ -301,7 +301,7 @@ async function loadDashboard() {
     document.getElementById('st-bookings').textContent = stats.active_bookings;
     document.getElementById('st-today').textContent    = stats.today_bookings;
     document.getElementById('st-courts').textContent   = stats.active_courts;
-    document.getElementById('st-revenue').textContent  = 'AED '+Number(stats.total_revenue).toLocaleString();
+    document.getElementById('st-revenue').textContent  = '$'+Number(stats.total_revenue).toLocaleString();
     // Today's bookings table
     const today = new Date().toISOString().split('T')[0];
     const bookings = await api('/admin/bookings?date='+today+'&status=confirmed');
@@ -332,7 +332,7 @@ function renderBookingsTable(data, targetId, showCancel) {
         <td>${b.court_name}</td>
         <td>${b.member_name}<br><span style="color:var(--muted);font-size:12px;">${b.member_email}</span></td>
         <td>${fmtDT(b.start_time)}</td>
-        <td>AED ${b.price}</td>
+        <td>$${b.price}</td>
         <td><span class="badge badge-${b.status}">${b.status.replace('_',' ')}</span></td>
         ${showCancel&&b.status==='confirmed'?`<td><button class="btn btn-danger btn-sm" onclick="adminCancelBooking('${b.id}')">Cancel</button></td>`:(showCancel?'<td></td>':'')}
       </tr>`).join('')}
@@ -390,7 +390,7 @@ async function loadCourts() {
         <div style="display:flex;align-items:center;justify-content:space-between;">
           <div>
             <div style="font-size:16px;font-weight:700;">${c.name}</div>
-            <div style="font-size:13px;color:var(--muted);margin-top:3px;">${c.surface_type} · AED ${c.price_per_hour}/hr</div>
+            <div style="font-size:13px;color:var(--muted);margin-top:3px;">${c.surface_type} · $${c.price_per_hour}/hr</div>
           </div>
           <div style="display:flex;gap:8px;align-items:center;">
             <span class="badge badge-${c.is_active?'active':'inactive'}">${c.is_active?'Open':'Closed'}</span>
@@ -401,7 +401,7 @@ async function loadCourts() {
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
             <div><label style="font-size:11px;color:var(--muted);display:block;margin-bottom:4px;">Name</label>
               <input id="ce-name-${c.id}" type="text" value="${c.name}" style="width:100%;"/></div>
-            <div><label style="font-size:11px;color:var(--muted);display:block;margin-bottom:4px;">Price/hr (AED)</label>
+            <div><label style="font-size:11px;color:var(--muted);display:block;margin-bottom:4px;">Price/hr (USD)</label>
               <input id="ce-price-${c.id}" type="text" value="${c.price_per_hour}" style="width:100%;"/></div>
             <div><label style="font-size:11px;color:var(--muted);display:block;margin-bottom:4px;">Surface</label>
               <input id="ce-surface-${c.id}" type="text" value="${c.surface_type}" style="width:100%;"/></div>

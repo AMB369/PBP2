@@ -1,0 +1,38 @@
+version: '3.8'
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: pbp-db
+    environment:
+      POSTGRES_USER: playbypoint
+      POSTGRES_PASSWORD: playbypoint
+      POSTGRES_DB: playbypoint
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U playbypoint']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+  backend:
+    image: node:18-alpine
+    container_name: pbp-backend
+    working_dir: /app
+    environment:
+      NODE_ENV: development
+      PORT: 3000
+      DATABASE_URL: postgresql://playbypoint:playbypoint@postgres:5432/playbypoint
+      JWT_SECRET: pbp-secret-key
+    ports:
+      - '3000:3000'
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./backend:/app
+    command: sh -c "npm install && npm start"
+volumes:
+  postgres_data:

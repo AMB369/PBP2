@@ -1,0 +1,10 @@
+const express = require('express');
+const { Pool } = require('pg');
+const cors = require('cors');
+const app = express();
+app.use(cors());
+app.use(express.json());
+const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+app.get('/api/courts', async (req, res) => { const r = await pool.query('SELECT * FROM courts'); res.json(r.rows); });
+app.get('/api/health', (req, res) => res.json({ status: 'ok' }));
+app.listen(3000, () => console.log('PBP Backend running on port 3000'));

@@ -2,964 +2,897 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
 <title>The Padel Foundry</title>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="PadelFoundry"/>
+<meta name="theme-color" content="#111827"/>
+<link rel="manifest" href="manifest.json"/>
+<link rel="apple-touch-icon" href="icon-192.png"/>
+<script>if('serviceWorker'in navigator)navigator.serviceWorker.register('/sw.js').catch(()=>{});</script>
 <style>
-  :root {
-    --bg: #0a0a0f;
-    --surface: #13131a;
-    --surface2: #1c1c27;
-    --border: #2a2a3a;
-    --accent: #f5a623;
-    --accent2: #ff6b35;
-    --text: #f0f0f5;
-    --muted: #6b6b85;
-    --success: #10d4a8;
-    --danger: #ff5c5c;
-    --radius: 16px;
-    --radius-sm: 10px;
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-  body {
-    font-family: -apple-system, 'SF Pro Display', system-ui, sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    min-height: 100vh;
-    max-width: 430px;
-    margin: 0 auto;
-    position: relative;
-    overflow-x: hidden;
-  }
+:root{
+  --bg:#111827;--surface:#1e2847;--surface2:#253156;--border:#2e3d6a;
+  --accent:#7ab3e0;--accent2:#5a9fd4;--text:#eef2ff;--muted:#8899cc;
+  --success:#3ecf8e;--danger:#ff5c5c;--info:#60b4f0;
+  --radius:16px;--radius-sm:10px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+body{font-family:-apple-system,'SF Pro Display',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;max-width:430px;margin:0 auto;overflow-x:hidden;}
+.screen{display:none;min-height:100vh;padding-bottom:90px;}
+.screen.active{display:block;}
 
-  /* ── Status bar ── */
-  .status-bar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 12px 20px 0;
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--text);
-  }
-  .status-icons { display: flex; gap: 6px; align-items: center; }
+/* ── Auth ── */
+.auth-wrap{min-height:100vh;display:flex;flex-direction:column;justify-content:center;padding:32px 24px;background:radial-gradient(ellipse at 60% 0%,#2a4a7f 0%,transparent 60%),radial-gradient(ellipse at 20% 100%,#1e3a6e 0%,transparent 50%);}
+.auth-logo{text-align:center;margin-bottom:32px;}
+.auth-logo img{width:72px;height:72px;border-radius:18px;}
+.auth-logo h1{font-size:26px;font-weight:800;margin-top:12px;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.auth-logo p{font-size:13px;color:var(--muted);margin-top:4px;}
+.tab-row{display:flex;gap:4px;background:var(--surface);border-radius:12px;padding:4px;margin-bottom:24px;}
+.tab-btn{flex:1;padding:10px;border:none;background:none;color:var(--muted);font-size:14px;font-weight:600;border-radius:10px;cursor:pointer;transition:.2s;}
+.tab-btn.active{background:var(--accent);color:#1e2847;}
+.form-group{margin-bottom:14px;}
+.form-group label{display:block;font-size:12px;color:var(--muted);margin-bottom:6px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;}
+.form-group input,
+.form-group select{width:100%;padding:14px 16px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:15px;outline:none;transition:.2s;}
+.form-group input:focus,.form-group select:focus{border-color:var(--accent);}
+.form-group select option{background:var(--surface2);}
+.btn{width:100%;padding:16px;border:none;border-radius:var(--radius-sm);font-size:16px;font-weight:700;cursor:pointer;transition:.2s;display:flex;align-items:center;justify-content:center;gap:8px;}
+.btn-primary{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#1e2847;}
+.btn-primary:active{opacity:.85;}
+.btn-outline{background:transparent;border:1.5px solid var(--border);color:var(--text);}
+.btn-danger{background:var(--danger);color:#fff;}
+.btn-success{background:var(--success);color:#fff;}
+.btn-sm{padding:10px 16px;font-size:13px;width:auto;}
+.auth-error{background:#ff5c5c22;border:1px solid var(--danger);border-radius:8px;padding:10px 14px;font-size:13px;color:var(--danger);margin-bottom:14px;display:none;}
 
-  /* ── Screens ── */
-  .screen { display: none; min-height: 100vh; padding-bottom: 90px; }
-  .screen.active { display: block; }
+/* ── Header ── */
+.header{padding:16px 20px 12px;display:flex;align-items:center;justify-content:space-between;}
+.header-logo{font-size:20px;font-weight:800;letter-spacing:-.02em;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.header-sub{font-size:11px;color:var(--muted);margin-top:2px;}
+.avatar{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;color:#1e2847;cursor:pointer;flex-shrink:0;}
+.badge{display:inline-block;background:var(--danger);color:#fff;border-radius:99px;font-size:10px;font-weight:700;padding:2px 7px;margin-left:6px;}
+.badge-success{background:var(--success);color:#fff;}
+.badge-info{background:var(--info);color:#fff;}
 
-  /* ── Header ── */
-  .header {
-    padding: 16px 20px 12px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-  .header-logo {
-    font-size: 22px;
-    font-weight: 800;
-    letter-spacing: -.02em;
-    background: linear-gradient(135deg, var(--accent), var(--accent2));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-  .header-sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
-  .avatar {
-    width: 38px; height: 38px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, var(--accent), var(--accent2));
-    display: flex; align-items: center; justify-content: center;
-    font-weight: 800; font-size: 14px; color: #fff;
-    cursor: pointer;
-  }
+/* ── Nav ── */
+.nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:var(--surface);border-top:1px solid var(--border);display:flex;padding:0 8px 4px;z-index:100;backdrop-filter:blur(20px);}
+.nav-item{flex:1;display:flex;flex-direction:column;align-items:center;padding:10px 4px 6px;gap:3px;cursor:pointer;color:var(--muted);font-size:10px;font-weight:600;border:none;background:none;transition:.2s;}
+.nav-item.active{color:var(--accent);}
+.nav-item svg{width:22px;height:22px;}
 
-  /* ── Section title ── */
-  .section-title {
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: .08em;
-    text-transform: uppercase;
-    color: var(--muted);
-    padding: 0 20px;
-    margin: 20px 0 10px;
-  }
+/* ── Cards ── */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin:0 16px 12px;}
+.section-title{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding:0 20px;margin:20px 0 10px;}
 
-  /* ── Court cards ── */
-  .courts-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-    padding: 0 20px;
-  }
-  .court-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 16px;
-    cursor: pointer;
-    transition: all .15s;
-    position: relative;
-    overflow: hidden;
-  }
-  .court-card::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 3px;
-    background: linear-gradient(90deg, var(--accent), var(--accent2));
-    opacity: 0;
-    transition: opacity .15s;
-  }
-  .court-card:active { transform: scale(.97); }
-  .court-card.selected, .court-card:hover { border-color: var(--accent); }
-  .court-card.selected::before, .court-card:hover::before { opacity: 1; }
-  .court-icon { font-size: 24px; margin-bottom: 8px; }
-  .court-name { font-size: 14px; font-weight: 700; margin-bottom: 2px; }
-  .court-type { font-size: 11px; color: var(--muted); margin-bottom: 8px; }
-  .court-status {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    font-size: 10px;
-    font-weight: 700;
-    padding: 3px 8px;
-    border-radius: 20px;
-    background: rgba(16,212,168,.1);
-    color: var(--success);
-    border: 1px solid rgba(16,212,168,.2);
-  }
-  .court-status.busy {
-    background: rgba(255,92,92,.1);
-    color: var(--danger);
-    border-color: rgba(255,92,92,.2);
-  }
-  .court-status-dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+/* ── Date strip ── */
+.date-strip{display:flex;gap:8px;padding:0 16px 4px;overflow-x:auto;scrollbar-width:none;}
+.date-strip::-webkit-scrollbar{display:none;}
+.date-chip{flex-shrink:0;display:flex;flex-direction:column;align-items:center;padding:10px 14px;background:var(--surface);border:1.5px solid var(--border);border-radius:12px;cursor:pointer;transition:.2s;min-width:52px;}
+.date-chip.active{border-color:var(--accent);background:#7ab3e020;}
+.date-chip .dd{font-size:18px;font-weight:800;line-height:1;}
+.date-chip .day{font-size:10px;color:var(--muted);margin-top:2px;}
 
-  /* ── Time slots ── */
-  .time-slots {
-    display: flex;
-    gap: 8px;
-    padding: 0 20px;
-    overflow-x: auto;
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-  }
-  .time-slots::-webkit-scrollbar { display: none; }
-  .slot {
-    flex-shrink: 0;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    padding: 10px 14px;
-    font-size: 13px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all .15s;
-    white-space: nowrap;
-  }
-  .slot:active { transform: scale(.95); }
-  .slot.selected {
-    background: var(--accent);
-    border-color: var(--accent);
-    color: #000;
-  }
-  .slot.taken {
-    opacity: .35;
-    cursor: not-allowed;
-    text-decoration: line-through;
-  }
+/* ── Court card ── */
+.court-card{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);margin:0 16px 12px;overflow:hidden;transition:.2s;}
+.court-card.active-court{border-color:var(--accent);}
+.court-header{padding:14px 16px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;}
+.court-name{font-size:16px;font-weight:700;}
+.court-meta{font-size:12px;color:var(--muted);margin-top:2px;}
+.court-price{font-size:14px;font-weight:700;color:var(--accent);}
+.slots-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:0 16px 16px;}
+.slot{padding:10px 6px;border-radius:10px;text-align:center;font-size:13px;font-weight:600;cursor:pointer;transition:.15s;border:1.5px solid transparent;}
+.slot.free{background:var(--surface2);border-color:var(--border);color:var(--text);}
+.slot.free:active{border-color:var(--accent);}
+.slot.selected{background:#7ab3e030;border-color:var(--accent);color:var(--accent);}
+.slot.taken{background:#ff5c5c18;color:var(--danger);cursor:not-allowed;opacity:.6;}
+.slot.taken.waitlist-joined{background:#4fa3e018;color:var(--info);cursor:pointer;opacity:1;}
 
-  /* ── Date picker ── */
-  .date-strip {
-    display: flex;
-    gap: 8px;
-    padding: 0 20px;
-    overflow-x: auto;
-    scrollbar-width: none;
-  }
-  .date-strip::-webkit-scrollbar { display: none; }
-  .date-chip {
-    flex-shrink: 0;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    padding: 10px 14px;
-    text-align: center;
-    cursor: pointer;
-    transition: all .15s;
-    min-width: 52px;
-  }
-  .date-chip.selected {
-    background: linear-gradient(135deg, var(--accent), var(--accent2));
-    border-color: transparent;
-  }
-  .date-day { font-size: 10px; font-weight: 600; color: var(--muted); }
-  .date-num { font-size: 18px; font-weight: 800; }
-  .date-chip.selected .date-day { color: rgba(0,0,0,.6); }
-  .date-chip.selected .date-num { color: #000; }
+/* ── Booking summary ── */
+.summary-bar{position:fixed;bottom:70px;left:50%;transform:translateX(-50%);width:calc(100% - 32px);max-width:398px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;display:flex;align-items:center;justify-content:space-between;z-index:90;box-shadow:0 -4px 24px rgba(0,0,0,.4);}
+.summary-bar.hidden{display:none;}
+.summary-info{font-size:13px;color:var(--muted);}
+.summary-price{font-size:18px;font-weight:800;color:var(--accent);}
 
-  /* ── Big CTA button ── */
-  .btn-primary {
-    margin: 20px 20px 0;
-    background: linear-gradient(135deg, var(--accent), var(--accent2));
-    color: #000;
-    font-size: 16px;
-    font-weight: 800;
-    padding: 18px;
-    border-radius: var(--radius);
-    border: none;
-    width: calc(100% - 40px);
-    cursor: pointer;
-    transition: opacity .15s, transform .1s;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-  }
-  .btn-primary:active { transform: scale(.97); opacity: .9; }
-  .btn-secondary {
-    margin: 12px 20px 0;
-    background: var(--surface2);
-    color: var(--text);
-    font-size: 15px;
-    font-weight: 700;
-    padding: 16px;
-    border-radius: var(--radius);
-    border: 1px solid var(--border);
-    width: calc(100% - 40px);
-    cursor: pointer;
-    transition: all .15s;
-  }
-  .btn-secondary:active { transform: scale(.97); }
+/* ── Booking list ── */
+.booking-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);margin:0 16px 12px;padding:16px;position:relative;}
+.booking-card .bc-court{font-size:15px;font-weight:700;}
+.booking-card .bc-time{font-size:13px;color:var(--muted);margin-top:3px;}
+.booking-card .bc-price{font-size:16px;font-weight:700;color:var(--accent);margin-top:8px;}
+.booking-card .bc-status{position:absolute;top:16px;right:16px;font-size:11px;font-weight:700;padding:4px 10px;border-radius:99px;}
+.status-confirmed{background:#3ecf8e28;color:var(--success);}
+.status-cancelled{background:#ff5c5c22;color:var(--danger);}
+.status-completed{background:#ffffff18;color:var(--muted);}
+.status-pending_payment{background:#7ab3e028;color:var(--accent);}
+.cancel-btn{margin-top:12px;padding:10px;width:100%;background:transparent;border:1.5px solid var(--border);color:var(--danger);border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;transition:.2s;}
+.cancel-btn:hover{background:#ff5c5c18;}
 
-  /* ── Reservation cards ── */
-  .reservation-list { padding: 0 20px; display: flex; flex-direction: column; gap: 12px; }
-  .res-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 16px;
-    display: flex;
-    gap: 14px;
-    align-items: flex-start;
-  }
-  .res-date-box {
-    background: linear-gradient(135deg, var(--accent), var(--accent2));
-    border-radius: 10px;
-    padding: 10px;
-    text-align: center;
-    min-width: 48px;
-    color: #000;
-  }
-  .res-month { font-size: 9px; font-weight: 800; letter-spacing: .05em; text-transform: uppercase; }
-  .res-day { font-size: 22px; font-weight: 900; line-height: 1; }
-  .res-info { flex: 1; }
-  .res-court { font-size: 15px; font-weight: 700; margin-bottom: 3px; }
-  .res-time { font-size: 12px; color: var(--muted); margin-bottom: 8px; }
-  .res-badges { display: flex; gap: 6px; }
-  .badge {
-    font-size: 10px;
-    font-weight: 700;
-    padding: 3px 8px;
-    border-radius: 20px;
-  }
-  .badge-confirmed { background: rgba(16,212,168,.1); color: var(--success); border: 1px solid rgba(16,212,168,.2); }
-  .badge-pending { background: rgba(245,166,35,.1); color: var(--accent); border: 1px solid rgba(245,166,35,.2); }
-  .badge-cancelled { background: rgba(255,92,92,.1); color: var(--danger); border: 1px solid rgba(255,92,92,.2); }
-  .res-cancel {
-    background: none;
-    border: 1px solid var(--border);
-    color: var(--muted);
-    font-size: 11px;
-    font-weight: 600;
-    padding: 6px 12px;
-    border-radius: 8px;
-    cursor: pointer;
-    margin-top: 4px;
-    transition: all .15s;
-  }
-  .res-cancel:active { border-color: var(--danger); color: var(--danger); }
+/* ── Profile ── */
+.profile-hero{padding:24px 20px 16px;display:flex;align-items:center;gap:16px;}
+.profile-avatar{width:70px;height:70px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:800;color:#1e2847;flex-shrink:0;}
+.profile-name{font-size:20px;font-weight:800;}
+.profile-email{font-size:13px;color:var(--muted);margin-top:2px;}
+.profile-skill{display:inline-block;margin-top:6px;font-size:11px;font-weight:700;padding:3px 10px;border-radius:99px;background:var(--accent);color:#1e2847;text-transform:uppercase;}
+.stat-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin:0 16px 16px;}
+.stat-box{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px;text-align:center;}
+.stat-box .sv{font-size:22px;font-weight:800;color:var(--accent);}
+.stat-box .sl{font-size:10px;color:var(--muted);margin-top:2px;}
+.menu-item{display:flex;align-items:center;gap:12px;padding:16px 20px;border-bottom:1px solid var(--border);cursor:pointer;}
+.menu-item:last-child{border-bottom:none;}
+.menu-item svg{color:var(--muted);}
+.menu-item span{flex:1;font-size:15px;}
+.menu-item .chevron{color:var(--border);}
 
-  /* ── Stats strip ── */
-  .stats-strip {
-    display: flex;
-    gap: 10px;
-    padding: 0 20px;
-  }
-  .stat-card {
-    flex: 1;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    padding: 14px;
-    text-align: center;
-  }
-  .stat-val { font-size: 24px; font-weight: 900; color: var(--accent); }
-  .stat-label { font-size: 10px; font-weight: 600; color: var(--muted); margin-top: 2px; }
+/* ── Modal ── */
+.modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;display:none;align-items:flex-end;justify-content:center;}
+.modal-backdrop.open{display:flex;}
+.modal{background:var(--surface);border-radius:24px 24px 0 0;padding:24px;width:100%;max-width:430px;max-height:90vh;overflow-y:auto;}
+.modal-title{font-size:18px;font-weight:800;margin-bottom:20px;}
+.modal-close{float:right;background:none;border:none;color:var(--muted);font-size:22px;cursor:pointer;margin-top:-4px;}
 
-  /* ── Login screen ── */
-  .login-screen {
-    padding: 40px 24px;
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-  }
-  .login-logo {
-    font-size: 36px;
-    font-weight: 900;
-    letter-spacing: -.03em;
-    background: linear-gradient(135deg, var(--accent), var(--accent2));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    margin-bottom: 6px;
-  }
-  .login-tagline { font-size: 14px; color: var(--muted); margin-bottom: 48px; }
-  .input-group { margin-bottom: 14px; }
-  .input-label { font-size: 11px; font-weight: 700; color: var(--muted); letter-spacing: .06em; text-transform: uppercase; margin-bottom: 6px; display: block; }
-  .input-field {
-    width: 100%;
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    padding: 14px 16px;
-    font-size: 15px;
-    color: var(--text);
-    outline: none;
-    transition: border-color .15s;
-  }
-  .input-field:focus { border-color: var(--accent); }
-  .input-field::placeholder { color: var(--muted); }
-  .login-divider {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin: 20px 0;
-    color: var(--muted);
-    font-size: 12px;
-  }
-  .login-divider::before, .login-divider::after {
-    content: '';
-    flex: 1;
-    height: 1px;
-    background: var(--border);
-  }
-  .tab-switcher {
-    display: flex;
-    background: var(--surface2);
-    border-radius: var(--radius-sm);
-    padding: 4px;
-    margin-bottom: 28px;
-  }
-  .tab-btn {
-    flex: 1;
-    padding: 10px;
-    border-radius: 8px;
-    border: none;
-    background: none;
-    color: var(--muted);
-    font-size: 14px;
-    font-weight: 700;
-    cursor: pointer;
-    transition: all .15s;
-  }
-  .tab-btn.active {
-    background: var(--surface);
-    color: var(--text);
-    box-shadow: 0 2px 8px rgba(0,0,0,.3);
-  }
+/* ── Recurring ── */
+.day-selector{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;}
+.day-chip{padding:8px 14px;border-radius:99px;border:1.5px solid var(--border);font-size:13px;font-weight:600;cursor:pointer;background:none;color:var(--text);}
+.day-chip.active{border-color:var(--accent);color:var(--accent);background:#7ab3e020;}
 
-  /* ── Booking confirmation ── */
-  .booking-summary {
-    margin: 16px 20px;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 16px;
-  }
-  .summary-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 8px 0;
-    border-bottom: 1px solid rgba(255,255,255,.04);
-    font-size: 13px;
-  }
-  .summary-row:last-child { border-bottom: none; }
-  .summary-label { color: var(--muted); }
-  .summary-value { font-weight: 700; }
-  .summary-price { color: var(--accent); font-size: 18px; font-weight: 900; }
+/* ── Toast ── */
+.toast{position:fixed;top:24px;left:50%;transform:translateX(-50%);background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:12px 20px;font-size:14px;font-weight:600;z-index:999;opacity:0;pointer-events:none;transition:opacity .3s;white-space:nowrap;}
+.toast.show{opacity:1;}
+.toast.success{border-color:var(--success);color:var(--success);}
+.toast.error{border-color:var(--danger);color:var(--danger);}
+.toast.info{border-color:var(--info);color:var(--info);}
 
-  /* ── Bottom nav ── */
-  .bottom-nav {
-    position: fixed;
-    bottom: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 100%;
-    max-width: 430px;
-    background: rgba(10,10,15,.95);
-    backdrop-filter: blur(20px);
-    border-top: 1px solid var(--border);
-    display: flex;
-    padding: 10px 0 24px;
-    z-index: 100;
-  }
-  .nav-item {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 4px;
-    cursor: pointer;
-    transition: all .15s;
-    padding: 4px 0;
-  }
-  .nav-icon { font-size: 22px; line-height: 1; }
-  .nav-label { font-size: 10px; font-weight: 700; color: var(--muted); letter-spacing: .02em; }
-  .nav-item.active .nav-label { color: var(--accent); }
-  .nav-item.active .nav-icon { filter: drop-shadow(0 0 6px var(--accent)); }
+/* ── Loaders ── */
+.spinner{width:24px;height:24px;border:2.5px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;margin:auto;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.empty-state{text-align:center;padding:48px 24px;color:var(--muted);}
+.empty-state svg{opacity:.3;margin-bottom:12px;}
+.empty-state p{font-size:15px;}
 
-  /* ── Toast ── */
-  .toast {
-    position: fixed;
-    top: 60px;
-    left: 50%;
-    transform: translateX(-50%) translateY(-20px);
-    background: var(--success);
-    color: #000;
-    font-size: 13px;
-    font-weight: 700;
-    padding: 12px 24px;
-    border-radius: 20px;
-    opacity: 0;
-    transition: all .3s;
-    z-index: 999;
-    white-space: nowrap;
-  }
-  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-
-  /* ── Empty state ── */
-  .empty-state {
-    text-align: center;
-    padding: 48px 32px;
-  }
-  .empty-icon { font-size: 48px; margin-bottom: 16px; }
-  .empty-title { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
-  .empty-text { font-size: 13px; color: var(--muted); line-height: 1.6; }
-
-  /* ── Hero banner ── */
-  .hero-banner {
-    margin: 12px 20px;
-    background: linear-gradient(135deg, rgba(245,166,35,.15), rgba(255,107,53,.1));
-    border: 1px solid rgba(245,166,35,.25);
-    border-radius: var(--radius);
-    padding: 18px;
-    position: relative;
-    overflow: hidden;
-  }
-  .hero-banner::after {
-    content: '🎾';
-    position: absolute;
-    right: 16px;
-    top: 50%;
-    transform: translateY(-50%);
-    font-size: 42px;
-    opacity: .4;
-  }
-  .hero-title { font-size: 18px; font-weight: 800; margin-bottom: 4px; }
-  .hero-sub { font-size: 12px; color: var(--muted); }
-
-  /* Animations */
-  @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(16px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
-  .screen.active > * { animation: fadeUp .25s ease forwards; }
+/* ── Recurring list ── */
+.recurring-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);margin:0 16px 12px;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;}
+.recurring-info .ri-court{font-size:14px;font-weight:700;}
+.recurring-info .ri-time{font-size:12px;color:var(--muted);margin-top:2px;}
 </style>
 </head>
 <body>
 
-<!-- Toast -->
-<div class="toast" id="toast"></div>
-
-<!-- ══════════════════════════════
-     LOGIN SCREEN
-══════════════════════════════ -->
-<div class="screen active" id="screen-login">
-  <div class="login-screen">
-    <div class="login-logo">The Padel Foundry</div>
-    <div class="login-tagline">Your padel club in your pocket.</div>
-
-    <div class="tab-switcher">
-      <button class="tab-btn active" id="tab-login" onclick="switchTab('login')">Login</button>
-      <button class="tab-btn" id="tab-register" onclick="switchTab('register')">Register</button>
+<!-- ══════════════ AUTH SCREEN ══════════════ -->
+<div id="screen-auth" class="screen active">
+  <div class="auth-wrap">
+    <div class="auth-logo">
+      <img src="icon-192.png" alt="logo"/>
+      <h1>The Padel Foundry</h1>
+      <p>Book your court. Play your game.</p>
     </div>
+    <div class="tab-row">
+      <button class="tab-btn active" onclick="authTab('login')">Sign In</button>
+      <button class="tab-btn" onclick="authTab('register')">Register</button>
+    </div>
+    <div id="auth-error" class="auth-error"></div>
 
+    <!-- Login -->
     <div id="form-login">
-      <div class="input-group">
-        <label class="input-label">Email</label>
-        <input class="input-field" type="email" placeholder="you@example.com" id="login-email"/>
-      </div>
-      <div class="input-group">
-        <label class="input-label">Password</label>
-        <input class="input-field" type="password" placeholder="••••••••" id="login-pass"/>
-      </div>
-      <button class="btn-primary" onclick="doLogin()" style="margin: 20px 0 0; width: 100%;">
-        Sign In →
-      </button>
+      <div class="form-group"><label>Email</label><input id="l-email" type="email" placeholder="you@example.com" autocomplete="email"/></div>
+      <div class="form-group"><label>Password</label><input id="l-pass" type="password" placeholder="••••••••" autocomplete="current-password"/></div>
+      <button class="btn btn-primary" onclick="doLogin()">Sign In</button>
     </div>
 
+    <!-- Register -->
     <div id="form-register" style="display:none">
-      <div class="input-group">
-        <label class="input-label">Full Name</label>
-        <input class="input-field" type="text" placeholder="Ahmad Al-Mansouri" id="reg-name"/>
+      <div class="form-group"><label>Full Name</label><input id="r-name" type="text" placeholder="Ahmad Al-Rashid"/></div>
+      <div class="form-group"><label>Email</label><input id="r-email" type="email" placeholder="you@example.com"/></div>
+      <div class="form-group"><label>Phone</label><input id="r-phone" type="tel" placeholder="+971 50 000 0000"/></div>
+      <div class="form-group"><label>Password</label><input id="r-pass" type="password" placeholder="Min 6 characters"/></div>
+      <div class="form-group"><label>Skill Level</label>
+        <select id="r-skill">
+          <option value="beginner">Beginner</option>
+          <option value="intermediate">Intermediate</option>
+          <option value="advanced">Advanced</option>
+          <option value="pro">Pro</option>
+        </select>
       </div>
-      <div class="input-group">
-        <label class="input-label">Email</label>
-        <input class="input-field" type="email" placeholder="you@example.com" id="reg-email"/>
-      </div>
-      <div class="input-group">
-        <label class="input-label">Password</label>
-        <input class="input-field" type="password" placeholder="••••••••" id="reg-pass"/>
-      </div>
-      <button class="btn-primary" onclick="doRegister()" style="margin: 20px 0 0; width: 100%;">
-        Create Account →
-      </button>
-    </div>
-
-    <div style="margin-top: auto; text-align: center; padding-top: 40px; font-size: 12px; color: var(--muted)">
-      Connected to The Padel Foundry API · localhost:3000
+      <button class="btn btn-primary" onclick="doRegister()">Create Account</button>
     </div>
   </div>
 </div>
 
-<!-- ══════════════════════════════
-     HOME / BOOKING SCREEN
-══════════════════════════════ -->
-<div class="screen" id="screen-home">
-  <div class="status-bar">
-    <span id="current-time">9:41</span>
-    <div class="status-icons">
-      <span>●●●</span>
-      <span>WiFi</span>
-      <span>🔋</span>
-    </div>
-  </div>
-
+<!-- ══════════════ BOOK SCREEN ══════════════ -->
+<div id="screen-book" class="screen">
   <div class="header">
     <div>
       <div class="header-logo">The Padel Foundry</div>
-      <div class="header-sub" id="greeting">Good morning, Ahmad</div>
+      <div class="header-sub" id="header-greeting">Good morning</div>
     </div>
-    <div class="avatar" onclick="showToast('Profile coming soon!')">A</div>
+    <div class="avatar" id="header-avatar" onclick="showScreen('profile')">?</div>
   </div>
 
-  <!-- Hero -->
-  <div class="hero-banner">
-    <div class="hero-title">Book a Court</div>
-    <div class="hero-sub">7 courts available · Hard & Clay</div>
+  <p class="section-title">Select Date</p>
+  <div class="date-strip" id="date-strip"></div>
+
+  <p class="section-title">Available Courts</p>
+  <div id="courts-list"></div>
+
+  <div class="summary-bar hidden" id="summary-bar">
+    <div>
+      <div class="summary-info" id="summary-info"></div>
+      <div class="summary-price" id="summary-price"></div>
+    </div>
+    <button class="btn btn-primary btn-sm" onclick="openConfirmModal()">Book Now</button>
   </div>
-
-  <!-- Stats -->
-  <div class="stats-strip">
-    <div class="stat-card">
-      <div class="stat-val" id="stat-courts">3</div>
-      <div class="stat-label">Courts</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-val" id="stat-bookings">2</div>
-      <div class="stat-label">My Bookings</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-val">€25</div>
-      <div class="stat-label">Per Hour</div>
-    </div>
-  </div>
-
-  <!-- Date picker -->
-  <div class="section-title">Select Date</div>
-  <div class="date-strip" id="dateStrip"></div>
-
-  <!-- Courts -->
-  <div class="section-title">Available Courts</div>
-  <div class="courts-grid" id="courtsGrid">
-    <div style="padding: 20px; color: var(--muted); font-size: 13px; grid-column: span 2; text-align: center;">
-      Loading courts...
-    </div>
-  </div>
-
-  <!-- Time slots -->
-  <div class="section-title">Time Slots</div>
-  <div class="time-slots" id="timeSlots">
-    <div style="padding: 10px 20px; color: var(--muted); font-size: 13px;">Select a court first</div>
-  </div>
-
-  <!-- Booking summary -->
-  <div class="booking-summary" id="bookingSummary" style="display:none">
-    <div class="summary-row">
-      <span class="summary-label">Court</span>
-      <span class="summary-value" id="sum-court">—</span>
-    </div>
-    <div class="summary-row">
-      <span class="summary-label">Date</span>
-      <span class="summary-value" id="sum-date">—</span>
-    </div>
-    <div class="summary-row">
-      <span class="summary-label">Time</span>
-      <span class="summary-value" id="sum-time">—</span>
-    </div>
-    <div class="summary-row">
-      <span class="summary-label">Duration</span>
-      <span class="summary-value">1 hour</span>
-    </div>
-    <div class="summary-row">
-      <span class="summary-label">Total</span>
-      <span class="summary-price">€25.00</span>
-    </div>
-  </div>
-
-  <button class="btn-primary" id="bookBtn" onclick="confirmBooking()" style="display:none">
-    ✓ Confirm Booking
-  </button>
 </div>
 
-<!-- ══════════════════════════════
-     MY RESERVATIONS SCREEN
-══════════════════════════════ -->
-<div class="screen" id="screen-reservations">
-  <div class="status-bar">
-    <span id="res-time">9:41</span>
-    <div class="status-icons"><span>●●●</span><span>WiFi</span><span>🔋</span></div>
-  </div>
+<!-- ══════════════ BOOKINGS SCREEN ══════════════ -->
+<div id="screen-bookings" class="screen">
   <div class="header">
     <div>
       <div class="header-logo">My Bookings</div>
-      <div class="header-sub">Upcoming reservations</div>
+      <div class="header-sub">Upcoming & past reservations</div>
     </div>
-    <div class="avatar">A</div>
+    <button class="btn btn-outline btn-sm" onclick="openRecurringModal()" style="width:auto;padding:8px 14px;font-size:12px;">+ Recurring</button>
   </div>
-
-  <div id="reservationsList"></div>
+  <div id="bookings-list"><div class="spinner" style="margin-top:40px;"></div></div>
+  <p class="section-title">Recurring Bookings</p>
+  <div id="recurring-list"><div class="spinner" style="margin-top:20px;"></div></div>
 </div>
 
-<!-- ══════════════════════════════
-     BOTTOM NAV
-══════════════════════════════ -->
-<nav class="bottom-nav" id="bottomNav">
-  <div class="nav-item active" id="nav-home" onclick="goTo('home')">
-    <span class="nav-icon">🎾</span>
-    <span class="nav-label">Book</span>
+<!-- ══════════════ PROFILE SCREEN ══════════════ -->
+<div id="screen-profile" class="screen">
+  <div class="header">
+    <div class="header-logo">Profile</div>
+    <button class="btn btn-outline btn-sm" onclick="openEditProfileModal()" style="width:auto;padding:8px 14px;font-size:12px;">Edit</button>
   </div>
-  <div class="nav-item" id="nav-reservations" onclick="goTo('reservations')">
-    <span class="nav-icon">📅</span>
-    <span class="nav-label">My Bookings</span>
+  <div class="profile-hero">
+    <div class="profile-avatar" id="profile-avatar-letter">?</div>
+    <div>
+      <div class="profile-name" id="profile-name">—</div>
+      <div class="profile-email" id="profile-email">—</div>
+      <div class="profile-skill" id="profile-skill">—</div>
+    </div>
   </div>
-  <div class="nav-item" id="nav-profile" onclick="showToast('Profile coming soon!')">
-    <span class="nav-icon">👤</span>
-    <span class="nav-label">Profile</span>
+  <div class="stat-row">
+    <div class="stat-box"><div class="sv" id="stat-total">0</div><div class="sl">Total Bookings</div></div>
+    <div class="stat-box"><div class="sv" id="stat-upcoming">0</div><div class="sl">Upcoming</div></div>
+    <div class="stat-box"><div class="sv" id="stat-waitlist">0</div><div class="sl">Waitlisted</div></div>
   </div>
+  <div class="card" style="padding:0;overflow:hidden;">
+    <div class="menu-item" onclick="enablePushNotifications()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+      <span>Push Notifications</span>
+      <span id="notif-status" class="badge" style="background:var(--border);color:var(--muted);">Off</span>
+    </div>
+    <div class="menu-item" onclick="openEditProfileModal()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+      <span>Edit Profile</span>
+      <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><polyline points="9 18 15 12 9 6"/></svg>
+    </div>
+    <div class="menu-item" onclick="showScreen('waitlist-view')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+      <span>My Waitlist</span>
+      <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><polyline points="9 18 15 12 9 6"/></svg>
+    </div>
+    <div class="menu-item" onclick="doLogout()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      <span>Sign Out</span>
+      <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><polyline points="9 18 15 12 9 6"/></svg>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ WAITLIST VIEW ══════════════ -->
+<div id="screen-waitlist-view" class="screen">
+  <div class="header">
+    <div>
+      <button onclick="showScreen('profile')" style="background:none;border:none;color:var(--muted);font-size:13px;cursor:pointer;">← Back</button>
+      <div class="header-logo" style="margin-top:4px;">My Waitlist</div>
+    </div>
+  </div>
+  <div id="waitlist-list"><div class="spinner" style="margin-top:40px;"></div></div>
+</div>
+
+<!-- ══════════════ BOTTOM NAV ══════════════ -->
+<nav class="nav" id="main-nav" style="display:none;">
+  <button class="nav-item active" id="nav-book" onclick="showScreen('book')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+    Book
+  </button>
+  <button class="nav-item" id="nav-bookings" onclick="showScreen('bookings')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+    My Bookings
+  </button>
+  <button class="nav-item" id="nav-profile" onclick="showScreen('profile')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+    Profile
+  </button>
 </nav>
 
+<!-- ══════════════ MODALS ══════════════ -->
+
+<!-- Confirm booking modal -->
+<div class="modal-backdrop" id="modal-confirm">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('modal-confirm')">✕</button>
+    <div class="modal-title">Confirm Booking</div>
+    <div id="confirm-details" style="margin-bottom:20px;"></div>
+    <div class="form-group"><label>Notes (optional)</label><input id="booking-notes" type="text" placeholder="E.g. bring extra balls"/></div>
+    <div style="display:flex;gap:10px;">
+      <button class="btn btn-outline" onclick="closeModal('modal-confirm')" style="flex:1;">Cancel</button>
+      <button class="btn btn-primary" onclick="doBooking()" style="flex:1;">Confirm & Pay</button>
+    </div>
+  </div>
+</div>
+
+<!-- Edit profile modal -->
+<div class="modal-backdrop" id="modal-edit-profile">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('modal-edit-profile')">✕</button>
+    <div class="modal-title">Edit Profile</div>
+    <div class="form-group"><label>Full Name</label><input id="ep-name" type="text"/></div>
+    <div class="form-group"><label>Phone</label><input id="ep-phone" type="tel"/></div>
+    <div class="form-group"><label>Skill Level</label>
+      <select id="ep-skill">
+        <option value="beginner">Beginner</option>
+        <option value="intermediate">Intermediate</option>
+        <option value="advanced">Advanced</option>
+        <option value="pro">Pro</option>
+      </select>
+    </div>
+    <button class="btn btn-primary" onclick="doSaveProfile()">Save Changes</button>
+  </div>
+</div>
+
+<!-- Recurring modal -->
+<div class="modal-backdrop" id="modal-recurring">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('modal-recurring')">✕</button>
+    <div class="modal-title">Set Recurring Booking</div>
+    <div class="form-group"><label>Court</label>
+      <select id="rec-court"></select>
+    </div>
+    <div class="form-group"><label>Day of Week</label>
+      <div class="day-selector" id="day-selector">
+        <button class="day-chip" data-day="1">Mon</button>
+        <button class="day-chip" data-day="2">Tue</button>
+        <button class="day-chip" data-day="3">Wed</button>
+        <button class="day-chip" data-day="4">Thu</button>
+        <button class="day-chip" data-day="5">Fri</button>
+        <button class="day-chip" data-day="6">Sat</button>
+        <button class="day-chip" data-day="0">Sun</button>
+      </div>
+    </div>
+    <div class="form-group"><label>Start Time</label>
+      <select id="rec-hour">
+        <option value="7">07:00</option><option value="8">08:00</option>
+        <option value="9">09:00</option><option value="10">10:00</option>
+        <option value="11">11:00</option><option value="12">12:00</option>
+        <option value="13">13:00</option><option value="14">14:00</option>
+        <option value="15">15:00</option><option value="16">16:00</option>
+        <option value="17">17:00</option><option value="18">18:00</option>
+        <option value="19">19:00</option><option value="20">20:00</option>
+        <option value="21">21:00</option>
+      </select>
+    </div>
+    <div class="form-group"><label>Duration</label>
+      <select id="rec-dur">
+        <option value="60">1 hour</option>
+        <option value="90">1.5 hours</option>
+        <option value="120">2 hours</option>
+      </select>
+    </div>
+    <button class="btn btn-primary" onclick="doCreateRecurring()">Save Recurring Booking</button>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
 <script>
-  const API = 'http://localhost:3000';
-  let state = {
-    user: null,
-    courts: [],
-    reservations: [],
-    selectedCourt: null,
-    selectedDate: null,
-    selectedSlot: null
-  };
+// ── Config ──────────────────────────────────────────────────
+const API = `http://${window.location.hostname}:3000/api`;
+const SLOTS = ['07:00','08:00','09:00','10:00','11:00','12:00',
+               '13:00','14:00','15:00','16:00','17:00','18:00',
+               '19:00','20:00','21:00','22:00'];
 
-  // ── Init ──
-  window.onload = () => {
-    updateClock();
-    setInterval(updateClock, 1000);
-    buildDateStrip();
-    greet();
-  };
+// ── State ───────────────────────────────────────────────────
+let token = localStorage.getItem('pf_token');
+let user  = JSON.parse(localStorage.getItem('pf_user') || 'null');
+let selectedDate = todayStr();
+let selectedSlot = null; // {court_id, court_name, start, end, price_per_hour}
+let courts = [];
+let bookingsCache = [];
+let waitlistCache = [];
+let recurringDay = null;
 
-  function updateClock() {
-    const now = new Date();
-    const t = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
-    document.getElementById('current-time').textContent = t;
-    document.getElementById('res-time').textContent = t;
+// ── API helpers ─────────────────────────────────────────────
+async function api(path, opts = {}) {
+  const headers = { 'Content-Type': 'application/json' };
+  if (token) headers['Authorization'] = 'Bearer ' + token;
+  try {
+    const r = await fetch(API + path, { ...opts, headers: { ...headers, ...(opts.headers||{}) } });
+    const data = await r.json();
+    if (!r.ok) throw new Error(data.error || 'Request failed');
+    return data;
+  } catch(e) {
+    if (e.message.includes('Failed to fetch')) throw new Error('Cannot connect to server. Make sure Docker is running.');
+    throw e;
   }
+}
 
-  function greet() {
-    const h = new Date().getHours();
-    const g = h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening';
-    const name = state.user?.name?.split(' ')[0] || 'Ahmad';
-    document.getElementById('greeting').textContent = `${g}, ${name}`;
+// ── Toast ────────────────────────────────────────────────────
+function toast(msg, type = 'success') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show ' + type;
+  setTimeout(() => t.className = 'toast', 2800);
+}
+
+// ── Date helpers ─────────────────────────────────────────────
+function todayStr() {
+  return new Date().toISOString().split('T')[0];
+}
+function fmtDate(d) {
+  return new Date(d+'T00:00:00').toLocaleDateString('en-AE',{weekday:'short',month:'short',day:'numeric'});
+}
+function fmtTime(iso) {
+  return new Date(iso).toLocaleTimeString('en-AE',{hour:'2-digit',minute:'2-digit',hour12:false});
+}
+function fmtDateTime(iso) {
+  return new Date(iso).toLocaleDateString('en-AE',{weekday:'short',month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'});
+}
+
+// ── Auth ─────────────────────────────────────────────────────
+function authTab(tab) {
+  document.querySelectorAll('.tab-btn').forEach((b,i)=>b.classList.toggle('active',i===(tab==='login'?0:1)));
+  document.getElementById('form-login').style.display    = tab==='login'?'':'none';
+  document.getElementById('form-register').style.display = tab==='register'?'':'none';
+  document.getElementById('auth-error').style.display = 'none';
+}
+function showAuthError(msg) {
+  const el = document.getElementById('auth-error');
+  el.textContent = msg; el.style.display = 'block';
+}
+
+async function doLogin() {
+  const email = document.getElementById('l-email').value.trim();
+  const pass  = document.getElementById('l-pass').value;
+  if (!email || !pass) return showAuthError('Enter email and password');
+  try {
+    const data = await api('/auth/login', { method:'POST', body: JSON.stringify({email, password:pass}) });
+    saveSession(data);
+    initApp();
+  } catch(e) { showAuthError(e.message); }
+}
+
+async function doRegister() {
+  const name  = document.getElementById('r-name').value.trim();
+  const email = document.getElementById('r-email').value.trim();
+  const phone = document.getElementById('r-phone').value.trim();
+  const pass  = document.getElementById('r-pass').value;
+  const skill = document.getElementById('r-skill').value;
+  if (!name||!email||!pass) return showAuthError('Name, email and password required');
+  if (pass.length < 6) return showAuthError('Password must be at least 6 characters');
+  try {
+    const data = await api('/auth/register', { method:'POST', body: JSON.stringify({name,email,phone,password:pass,skill_level:skill}) });
+    saveSession(data);
+    initApp();
+  } catch(e) { showAuthError(e.message); }
+}
+
+function saveSession(data) {
+  token = data.token;
+  user  = data.user;
+  localStorage.setItem('pf_token', token);
+  localStorage.setItem('pf_user', JSON.stringify(user));
+}
+
+function doLogout() {
+  token = null; user = null;
+  localStorage.removeItem('pf_token');
+  localStorage.removeItem('pf_user');
+  document.getElementById('main-nav').style.display = 'none';
+  showScreen('auth');
+}
+
+// ── Init ─────────────────────────────────────────────────────
+function initApp() {
+  if (!token || !user) { showScreen('auth'); return; }
+  document.getElementById('main-nav').style.display = 'flex';
+  // Greeting
+  const h = new Date().getHours();
+  document.getElementById('header-greeting').textContent =
+    (h<12?'Good morning':h<17?'Good afternoon':'Good evening')+', '+user.name.split(' ')[0];
+  document.getElementById('header-avatar').textContent = user.name[0].toUpperCase();
+  buildDateStrip();
+  showScreen('book');
+}
+
+// ── Date strip ───────────────────────────────────────────────
+function buildDateStrip() {
+  const strip = document.getElementById('date-strip');
+  strip.innerHTML = '';
+  const DAYS = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  for (let i=0;i<10;i++) {
+    const d = new Date(); d.setDate(d.getDate()+i);
+    const str = d.toISOString().split('T')[0];
+    const chip = document.createElement('div');
+    chip.className = 'date-chip' + (str===selectedDate?' active':'');
+    chip.innerHTML = `<span class="dd">${d.getDate()}</span><span class="day">${DAYS[d.getDay()]}</span>`;
+    chip.onclick = () => { selectedDate=str; selectedSlot=null; hideSummary(); document.querySelectorAll('.date-chip').forEach(c=>c.classList.remove('active')); chip.classList.add('active'); loadCourts(); };
+    strip.appendChild(chip);
   }
+}
 
-  // ── Date strip ──
-  function buildDateStrip() {
-    const strip = document.getElementById('dateStrip');
-    strip.innerHTML = '';
-    const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-    const today = new Date();
-    for (let i = 0; i < 10; i++) {
-      const d = new Date(today);
-      d.setDate(today.getDate() + i);
-      const chip = document.createElement('div');
-      chip.className = 'date-chip' + (i === 0 ? ' selected' : '');
-      chip.innerHTML = `<div class="date-day">${days[d.getDay()]}</div><div class="date-num">${d.getDate()}</div>`;
-      chip.onclick = () => {
-        document.querySelectorAll('.date-chip').forEach(c => c.classList.remove('selected'));
-        chip.classList.add('selected');
-        state.selectedDate = `${d.getDate()} ${months[d.getMonth()]}`;
-        updateSummary();
-      };
-      if (i === 0) state.selectedDate = `${d.getDate()} ${months[d.getMonth()]}`;
-      strip.appendChild(chip);
-    }
+// ── Courts ───────────────────────────────────────────────────
+async function loadCourts() {
+  const list = document.getElementById('courts-list');
+  list.innerHTML = '<div class="spinner" style="margin-top:32px;"></div>';
+  try {
+    const [courtData, ...avails] = await Promise.all([
+      courts.length ? courts : api('/courts').then(d=>{courts=d;return d;}),
+      ...[] // populated below
+    ]);
+    // Fetch availability for each court
+    const availMap = {};
+    await Promise.all(courts.map(async c => {
+      const slots = await api(`/courts/${c.id}/availability?date=${selectedDate}`);
+      availMap[c.id] = slots;
+    }));
+    renderCourts(availMap);
+  } catch(e) {
+    list.innerHTML = `<div class="empty-state"><p>${e.message}</p></div>`;
   }
+}
 
-  // ── Auth ──
-  function switchTab(tab) {
-    document.getElementById('tab-login').classList.toggle('active', tab === 'login');
-    document.getElementById('tab-register').classList.toggle('active', tab === 'register');
-    document.getElementById('form-login').style.display = tab === 'login' ? 'block' : 'none';
-    document.getElementById('form-register').style.display = tab === 'register' ? 'block' : 'none';
-  }
-
-  async function doLogin() {
-    const email = document.getElementById('login-email').value;
-    const pass = document.getElementById('login-pass').value;
-    if (!email) { showToast('Enter your email', true); return; }
-    try {
-      const res = await fetch(`${API}/api/auth/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password: pass })
-      });
-      if (res.ok) {
-        const data = await res.json();
-        state.user = data.member || { name: email.split('@')[0], email };
-        localStorage.setItem('pbp_token', data.token || 'demo');
-        afterLogin();
-      } else {
-        // Demo mode - login anyway
-        state.user = { name: email.split('@')[0], email };
-        afterLogin();
-      }
-    } catch {
-      // Offline demo mode
-      state.user = { name: email ? email.split('@')[0] : 'Ahmad', email: email || 'demo@pbp.com' };
-      afterLogin();
-    }
-  }
-
-  async function doRegister() {
-    const name = document.getElementById('reg-name').value;
-    const email = document.getElementById('reg-email').value;
-    const pass = document.getElementById('reg-pass').value;
-    if (!name || !email) { showToast('Fill in all fields', true); return; }
-    try {
-      const res = await fetch(`${API}/api/auth/register`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, password: pass })
-      });
-      state.user = { name, email };
-      afterLogin();
-    } catch {
-      state.user = { name: name || 'Ahmad', email };
-      afterLogin();
-    }
-    showToast('Account created!');
-  }
-
-  function afterLogin() {
-    document.getElementById('bottomNav').style.display = 'flex';
-    goTo('home');
-    greet();
-    loadCourts();
-    loadReservations();
-  }
-
-  // ── Load courts ──
-  async function loadCourts() {
-    try {
-      const res = await fetch(`${API}/api/courts`);
-      state.courts = await res.json();
-    } catch {
-      state.courts = [
-        { id: '1', name: 'Court 1', court_number: 1, surface_type: 'Hard Court', is_active: true },
-        { id: '2', name: 'Court 2', court_number: 2, surface_type: 'Hard Court', is_active: true },
-        { id: '3', name: 'Court 3', court_number: 3, surface_type: 'Clay Court', is_active: true }
-      ];
-    }
-    document.getElementById('stat-courts').textContent = state.courts.length;
-    renderCourts();
-  }
-
-  function renderCourts() {
-    const grid = document.getElementById('courtsGrid');
-    const surfaces = { 'Hard Court': '🎾', 'Clay Court': '🏆', 'Grass Court': '🌿' };
-    grid.innerHTML = state.courts.map(c => `
-      <div class="court-card ${state.selectedCourt?.id === c.id ? 'selected' : ''}"
-           onclick="selectCourt('${c.id}')">
-        <div class="court-icon">${surfaces[c.surface_type] || '🎾'}</div>
-        <div class="court-name">${c.name}</div>
-        <div class="court-type">${c.surface_type}</div>
-        <div class="court-status">
-          <div class="court-status-dot"></div>
-          Available
-        </div>
-      </div>
-    `).join('');
-  }
-
-  function selectCourt(id) {
-    state.selectedCourt = state.courts.find(c => c.id === id);
-    renderCourts();
-    renderSlots();
-    updateSummary();
-  }
-
-  // ── Time slots ──
-  function renderSlots() {
-    const container = document.getElementById('timeSlots');
-    const times = ['08:00','09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00','19:00','20:00'];
-    const taken = ['10:00','14:00','16:00'];
-    container.innerHTML = times.map(t => `
-      <div class="slot ${taken.includes(t) ? 'taken' : ''} ${state.selectedSlot === t ? 'selected' : ''}"
-           onclick="${taken.includes(t) ? '' : `selectSlot('${t}')`}">
-        ${t}
-      </div>
-    `).join('');
-  }
-
-  function selectSlot(time) {
-    state.selectedSlot = time;
-    renderSlots();
-    updateSummary();
-  }
-
-  function updateSummary() {
-    const summary = document.getElementById('bookingSummary');
-    const btn = document.getElementById('bookBtn');
-    if (state.selectedCourt && state.selectedSlot) {
-      document.getElementById('sum-court').textContent = state.selectedCourt.name + ' · ' + state.selectedCourt.surface_type;
-      document.getElementById('sum-date').textContent = state.selectedDate || 'Today';
-      document.getElementById('sum-time').textContent = state.selectedSlot + ' – ' + (parseInt(state.selectedSlot) + 1) + ':00';
-      summary.style.display = 'block';
-      btn.style.display = 'flex';
-    } else {
-      summary.style.display = 'none';
-      btn.style.display = 'none';
-    }
-  }
-
-  // ── Confirm booking ──
-  async function confirmBooking() {
-    if (!state.selectedCourt || !state.selectedSlot) return;
-    const booking = {
-      court: state.selectedCourt.name,
-      date: state.selectedDate,
-      time: state.selectedSlot,
-      surface: state.selectedCourt.surface_type
-    };
-    state.reservations.unshift({
-      id: Date.now(),
-      court: booking.court,
-      date: booking.date,
-      time: booking.time + ' – ' + (parseInt(booking.time) + 1) + ':00',
-      surface: booking.surface,
-      status: 'confirmed',
-      price: 25
+function renderCourts(availMap) {
+  const list = document.getElementById('courts-list');
+  list.innerHTML = '';
+  courts.forEach(court => {
+    const booked = availMap[court.id] || [];
+    const wrap = document.createElement('div');
+    wrap.className = 'court-card';
+    let slotsHtml = '';
+    SLOTS.forEach(slot => {
+      const [h,m] = slot.split(':').map(Number);
+      const start = `${selectedDate}T${slot}:00`;
+      const endH  = h+1; const end = `${selectedDate}T${String(endH).padStart(2,'0')}:${String(m).padStart(2,'0')}:00`;
+      const isTaken = booked.some(b => new Date(b.start_time) < new Date(end) && new Date(b.end_time) > new Date(start) && b.status!=='cancelled');
+      const isSelected = selectedSlot?.court_id===court.id && selectedSlot?.start===start;
+      const cls = isTaken ? 'taken' : isSelected ? 'selected' : 'free';
+      slotsHtml += `<div class="slot ${cls}" data-start="${start}" data-end="${end}" data-court="${court.id}" onclick="selectSlot(this,'${court.id}','${court.name}','${start}','${end}',${court.price_per_hour},${isTaken})">${slot}</div>`;
     });
-    document.getElementById('stat-bookings').textContent = state.reservations.length;
-    state.selectedCourt = null;
-    state.selectedSlot = null;
-    updateSummary();
-    renderCourts();
-    renderSlots();
-    showToast('✓ Booking confirmed!');
-    setTimeout(() => goTo('reservations'), 1200);
-  }
+    wrap.innerHTML = `
+      <div class="court-header" onclick="this.parentElement.classList.toggle('active-court')">
+        <div><div class="court-name">${court.name}</div><div class="court-meta">${court.surface_type} · Court ${court.court_number}</div></div>
+        <div class="court-price">AED ${court.price_per_hour}/hr</div>
+      </div>
+      <div class="slots-grid">${slotsHtml}</div>`;
+    list.appendChild(wrap);
+  });
+}
 
-  // ── Reservations ──
-  function loadReservations() {
-    if (state.reservations.length === 0) {
-      state.reservations = [
-        { id: 1, court: 'Court 2', date: '21 Mar', time: '14:00 – 15:00', surface: 'Hard Court', status: 'confirmed', price: 25 },
-        { id: 2, court: 'Court 3', date: '23 Mar', time: '10:00 – 11:00', surface: 'Clay Court', status: 'confirmed', price: 25 }
-      ];
-      document.getElementById('stat-bookings').textContent = state.reservations.length;
+function selectSlot(el, courtId, courtName, start, end, pricePerHour, isTaken) {
+  if (isTaken) {
+    // Offer to join waitlist
+    joinWaitlistPrompt(courtId, courtName, start, end);
+    return;
+  }
+  // Deselect if same
+  if (selectedSlot?.court_id===courtId && selectedSlot?.start===start) {
+    selectedSlot=null; hideSummary();
+    el.className='slot free'; return;
+  }
+  // Clear previous selection
+  document.querySelectorAll('.slot.selected').forEach(s=>s.className='slot free');
+  const hours = (new Date(end)-new Date(start))/3600000;
+  const price = (pricePerHour*hours).toFixed(2);
+  selectedSlot = {court_id:courtId, court_name:courtName, start, end, price, price_per_hour:pricePerHour};
+  el.className='slot selected';
+  document.getElementById('summary-info').textContent = `${courtName} · ${start.split('T')[1].slice(0,5)}–${end.split('T')[1].slice(0,5)}`;
+  document.getElementById('summary-price').textContent = `AED ${price}`;
+  document.getElementById('summary-bar').classList.remove('hidden');
+}
+
+function hideSummary() {
+  document.getElementById('summary-bar').classList.add('hidden');
+  document.querySelectorAll('.slot.selected').forEach(s=>s.className='slot free');
+}
+
+// ── Waitlist ─────────────────────────────────────────────────
+async function joinWaitlistPrompt(courtId, courtName, start, end) {
+  const [date,timeStart] = start.split('T');
+  const timeEnd = end.split('T')[1].slice(0,8);
+  if (!confirm(`${courtName} is taken at this time.\nJoin the waitlist for ${timeStart.slice(0,5)}?`)) return;
+  try {
+    await api('/waitlist', { method:'POST', body: JSON.stringify({
+      court_id: courtId,
+      requested_date: date,
+      requested_start: timeStart.slice(0,8),
+      requested_end: timeEnd
+    })});
+    toast('Added to waitlist! We\'ll notify you if a slot opens.', 'info');
+    // Visually mark slot
+    document.querySelectorAll(`[data-start="${start}"][data-court="${courtId}"]`).forEach(el=>{
+      el.classList.add('waitlist-joined');
+      el.title = 'On waitlist';
+    });
+  } catch(e) { toast(e.message,'error'); }
+}
+
+// ── Confirm booking modal ────────────────────────────────────
+function openConfirmModal() {
+  if (!selectedSlot) return;
+  const s = selectedSlot;
+  document.getElementById('confirm-details').innerHTML = `
+    <div class="card" style="margin:0 0 16px;">
+      <div style="font-weight:700;font-size:16px;">${s.court_name}</div>
+      <div style="color:var(--muted);font-size:13px;margin-top:4px;">${fmtDate(selectedDate)}</div>
+      <div style="color:var(--muted);font-size:13px;">${s.start.split('T')[1].slice(0,5)} – ${s.end.split('T')[1].slice(0,5)}</div>
+      <div style="font-size:20px;font-weight:800;color:var(--accent);margin-top:10px;">AED ${s.price}</div>
+    </div>`;
+  openModal('modal-confirm');
+}
+
+async function doBooking() {
+  if (!selectedSlot) return;
+  const notes = document.getElementById('booking-notes').value;
+  try {
+    const res = await api('/reservations', { method:'POST', body: JSON.stringify({
+      court_id:   selectedSlot.court_id,
+      start_time: selectedSlot.start,
+      end_time:   selectedSlot.end,
+      notes
+    })});
+    closeModal('modal-confirm');
+    selectedSlot = null; hideSummary();
+    toast('Booking confirmed! 🎉', 'success');
+    loadCourts();
+    scheduleBookingReminder(res);
+  } catch(e) {
+    toast(e.message, 'error');
+  }
+}
+
+// ── Bookings list ────────────────────────────────────────────
+async function loadBookings() {
+  document.getElementById('bookings-list').innerHTML = '<div class="spinner" style="margin-top:40px;"></div>';
+  document.getElementById('recurring-list').innerHTML = '<div class="spinner" style="margin-top:20px;"></div>';
+  try {
+    const [bookings, recurring] = await Promise.all([
+      api('/members/me/bookings'),
+      api('/reservations/recurring/mine')
+    ]);
+    bookingsCache = bookings;
+    renderBookings(bookings);
+    renderRecurring(recurring);
+  } catch(e) {
+    document.getElementById('bookings-list').innerHTML = `<div class="empty-state"><p>${e.message}</p></div>`;
+  }
+}
+
+function renderBookings(bookings) {
+  const list = document.getElementById('bookings-list');
+  if (!bookings.length) {
+    list.innerHTML = '<div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="48" height="48"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg><p>No bookings yet</p></div>';
+    return;
+  }
+  list.innerHTML = bookings.map(b => `
+    <div class="booking-card">
+      <span class="bc-status status-${b.status}">${b.status.replace('_',' ')}</span>
+      <div class="bc-court">${b.court_name}</div>
+      <div class="bc-time">${fmtDateTime(b.start_time)} – ${fmtTime(b.end_time)}</div>
+      <div class="bc-price">AED ${b.price}</div>
+      ${b.status==='confirmed' && new Date(b.start_time)>new Date() ?
+        `<button class="cancel-btn" onclick="cancelBooking('${b.id}')">Cancel Booking</button>` : ''}
+    </div>`).join('');
+}
+
+function renderRecurring(items) {
+  const list = document.getElementById('recurring-list');
+  const DAYS=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  if (!items.length) {
+    list.innerHTML = '<div style="padding:0 16px 16px;color:var(--muted);font-size:13px;">No recurring bookings. Tap + Recurring to add one.</div>';
+    return;
+  }
+  list.innerHTML = items.map(r => `
+    <div class="recurring-card">
+      <div class="recurring-info">
+        <div class="ri-court">${r.court_name}</div>
+        <div class="ri-time">${DAYS[r.day_of_week]}s · ${String(r.start_hour).padStart(2,'0')}:00 · ${r.duration_min} min</div>
+      </div>
+      <button class="btn btn-outline btn-sm" style="color:var(--danger);border-color:var(--danger);" onclick="cancelRecurring('${r.id}')">Remove</button>
+    </div>`).join('');
+}
+
+async function cancelBooking(id) {
+  if (!confirm('Cancel this booking?')) return;
+  try {
+    await api('/reservations/'+id, { method:'DELETE' });
+    toast('Booking cancelled', 'info');
+    loadBookings();
+  } catch(e) { toast(e.message,'error'); }
+}
+
+async function cancelRecurring(id) {
+  if (!confirm('Remove this recurring booking?')) return;
+  try {
+    await api('/reservations/recurring/'+id, { method:'DELETE' });
+    toast('Recurring booking removed', 'info');
+    loadBookings();
+  } catch(e) { toast(e.message,'error'); }
+}
+
+// ── Profile ──────────────────────────────────────────────────
+async function loadProfile() {
+  try {
+    const [profile, bookings, waitlist] = await Promise.all([
+      api('/members/me'),
+      api('/members/me/bookings'),
+      api('/members/me/waitlist')
+    ]);
+    user = { ...user, ...profile };
+    localStorage.setItem('pf_user', JSON.stringify(user));
+    document.getElementById('profile-avatar-letter').textContent = profile.name[0].toUpperCase();
+    document.getElementById('profile-name').textContent = profile.name;
+    document.getElementById('profile-email').textContent = profile.email;
+    document.getElementById('profile-skill').textContent = profile.skill_level;
+    const upcoming = bookings.filter(b=>b.status==='confirmed'&&new Date(b.start_time)>new Date());
+    document.getElementById('stat-total').textContent    = bookings.length;
+    document.getElementById('stat-upcoming').textContent = upcoming.length;
+    document.getElementById('stat-waitlist').textContent = waitlist.length;
+    // Notification status
+    if (Notification.permission==='granted') {
+      document.getElementById('notif-status').textContent='On';
+      document.getElementById('notif-status').className='badge badge-success';
     }
-    renderReservations();
-  }
+  } catch(e) { toast(e.message,'error'); }
+}
 
-  function renderReservations() {
-    const list = document.getElementById('reservationsList');
-    if (state.reservations.length === 0) {
-      list.innerHTML = `
-        <div class="empty-state">
-          <div class="empty-icon">📅</div>
-          <div class="empty-title">No bookings yet</div>
-          <div class="empty-text">Head to the Book tab to reserve your first court.</div>
-        </div>`;
-      return;
+function openEditProfileModal() {
+  document.getElementById('ep-name').value  = user?.name  || '';
+  document.getElementById('ep-phone').value = user?.phone || '';
+  document.getElementById('ep-skill').value = user?.skill_level || 'beginner';
+  openModal('modal-edit-profile');
+}
+
+async function doSaveProfile() {
+  const name  = document.getElementById('ep-name').value.trim();
+  const phone = document.getElementById('ep-phone').value.trim();
+  const skill = document.getElementById('ep-skill').value;
+  try {
+    const updated = await api('/members/me', { method:'PUT', body: JSON.stringify({name,phone,skill_level:skill}) });
+    user = { ...user, ...updated };
+    localStorage.setItem('pf_user', JSON.stringify(user));
+    closeModal('modal-edit-profile');
+    loadProfile();
+    toast('Profile updated!', 'success');
+  } catch(e) { toast(e.message,'error'); }
+}
+
+// ── Waitlist view ─────────────────────────────────────────────
+async function loadWaitlist() {
+  const list = document.getElementById('waitlist-list');
+  list.innerHTML = '<div class="spinner" style="margin-top:40px;"></div>';
+  try {
+    const data = await api('/members/me/waitlist');
+    if (!data.length) {
+      list.innerHTML = '<div class="empty-state"><p>You\'re not on any waitlists</p></div>'; return;
     }
-    const surfaces = { 'Hard Court': '🎾', 'Clay Court': '🏆', 'Grass Court': '🌿' };
-    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-    list.innerHTML = `<div class="reservation-list">` + state.reservations.map(r => {
-      const dateParts = r.date.split(' ');
-      return `
-        <div class="res-card" id="res-${r.id}">
-          <div class="res-date-box">
-            <div class="res-month">${dateParts[1] || 'Mar'}</div>
-            <div class="res-day">${dateParts[0] || '21'}</div>
-          </div>
-          <div class="res-info">
-            <div class="res-court">${surfaces[r.surface] || '🎾'} ${r.court}</div>
-            <div class="res-time">⏰ ${r.time} · ${r.surface}</div>
-            <div class="res-badges">
-              <span class="badge badge-${r.status}">${r.status}</span>
-              <span class="badge" style="background:rgba(91,140,255,.1);color:#82aaff;border:1px solid rgba(91,140,255,.2)">€${r.price}</span>
-            </div>
-            ${r.status !== 'cancelled' ? `<button class="res-cancel" onclick="cancelRes(${r.id})">Cancel</button>` : ''}
-          </div>
-        </div>
-      `;
-    }).join('') + `</div>`;
-  }
+    list.innerHTML = data.map(w=>`
+      <div class="booking-card">
+        <span class="bc-status" style="background:#4fa3e018;color:var(--info);">Waiting</span>
+        <div class="bc-court">${w.court_name}</div>
+        <div class="bc-time">${w.requested_date} · ${w.requested_start.slice(0,5)}–${w.requested_end.slice(0,5)}</div>
+        <button class="cancel-btn" onclick="leaveWaitlist('${w.id}')">Leave Waitlist</button>
+      </div>`).join('');
+  } catch(e) { list.innerHTML = `<div class="empty-state"><p>${e.message}</p></div>`; }
+}
 
-  function cancelRes(id) {
-    const r = state.reservations.find(r => r.id === id);
-    if (r) {
-      r.status = 'cancelled';
-      renderReservations();
-      showToast('Reservation cancelled');
-    }
-  }
+async function leaveWaitlist(id) {
+  try {
+    await api('/waitlist/'+id, { method:'DELETE' });
+    toast('Removed from waitlist', 'info');
+    loadWaitlist();
+  } catch(e) { toast(e.message,'error'); }
+}
 
-  // ── Navigation ──
-  function goTo(screen) {
-    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-    document.getElementById('screen-' + screen).classList.add('active');
-    const navEl = document.getElementById('nav-' + screen);
-    if (navEl) navEl.classList.add('active');
-    if (screen === 'reservations') renderReservations();
-  }
+// ── Recurring modal ───────────────────────────────────────────
+async function openRecurringModal() {
+  const sel = document.getElementById('rec-court');
+  if (!courts.length) { const c = await api('/courts'); courts = c; }
+  sel.innerHTML = courts.map(c=>`<option value="${c.id}">${c.name}</option>`).join('');
+  document.querySelectorAll('.day-chip').forEach(c=>c.classList.remove('active'));
+  recurringDay = null;
+  openModal('modal-recurring');
+}
+document.querySelectorAll('.day-chip').forEach(btn => {
+  btn.onclick = () => {
+    document.querySelectorAll('.day-chip').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    recurringDay = parseInt(btn.dataset.day);
+  };
+});
+async function doCreateRecurring() {
+  if (recurringDay===null) { toast('Select a day','error'); return; }
+  const court_id    = document.getElementById('rec-court').value;
+  const start_hour  = parseInt(document.getElementById('rec-hour').value);
+  const duration_min= parseInt(document.getElementById('rec-dur').value);
+  try {
+    await api('/reservations/recurring', { method:'POST', body: JSON.stringify({court_id,day_of_week:recurringDay,start_hour,duration_min}) });
+    closeModal('modal-recurring');
+    toast('Recurring booking saved!','success');
+    loadBookings();
+  } catch(e) { toast(e.message,'error'); }
+}
 
-  // ── Toast ──
-  function showToast(msg, isError = false) {
-    const t = document.getElementById('toast');
-    t.textContent = msg;
-    t.style.background = isError ? 'var(--danger)' : 'var(--success)';
-    t.classList.add('show');
-    setTimeout(() => t.classList.remove('show'), 2500);
-  }
+// ── Push notifications ────────────────────────────────────────
+async function enablePushNotifications() {
+  if (!('Notification' in window)) { toast('Notifications not supported','error'); return; }
+  if (Notification.permission === 'granted') { toast('Already enabled','info'); return; }
+  const perm = await Notification.requestPermission();
+  if (perm !== 'granted') { toast('Notification permission denied','error'); return; }
+  try {
+    const reg = await navigator.serviceWorker.ready;
+    // Using a static VAPID key placeholder — real key generated by backend
+    const sub = await reg.pushManager.subscribe({
+      userVisibleOnly: true,
+      applicationServerKey: urlBase64ToUint8Array('BEl62iUYgUivxIkv69yViEuiBIa40HI80NM9Say9AjL3G31uyFRE7TpT7t2H9L9S3R8qCxMO_YGSKwpEjXjRXjA')
+    });
+    await api('/notifications/subscribe', { method:'POST', body: JSON.stringify(sub) });
+    document.getElementById('notif-status').textContent='On';
+    document.getElementById('notif-status').className='badge badge-success';
+    toast('Notifications enabled! ✓','success');
+  } catch(e) { toast('Could not enable notifications','error'); }
+}
 
-  // Hide nav on login screen
-  document.getElementById('bottomNav').style.display = 'none';
+function scheduleBookingReminder(reservation) {
+  if (Notification.permission !== 'granted') return;
+  const reminderTime = new Date(reservation.start_time).getTime() - 60*60*1000; // 1hr before
+  const delay = reminderTime - Date.now();
+  if (delay > 0 && delay < 24*60*60*1000) {
+    setTimeout(() => {
+      new Notification('Court booked in 1 hour!', {
+        body: `${reservation.court_name || 'Your court'} at ${fmtTime(reservation.start_time)}`,
+        icon: 'icon-192.png'
+      });
+    }, delay);
+  }
+}
+
+function urlBase64ToUint8Array(base64String) {
+  const padding='='.repeat((4-base64String.length%4)%4);
+  const base64=(base64String+padding).replace(/-/g,'+').replace(/_/g,'/');
+  const raw=window.atob(base64);
+  return Uint8Array.from([...raw].map(c=>c.charCodeAt(0)));
+}
+
+// ── Screen navigation ─────────────────────────────────────────
+function showScreen(name) {
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('screen-'+name).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  const navMap = {book:'nav-book', bookings:'nav-bookings', profile:'nav-profile'};
+  if (navMap[name]) document.getElementById(navMap[name]).classList.add('active');
+  // Load data when switching
+  if (name==='book')          { if(!courts.length) loadCourts(); }
+  if (name==='bookings')      loadBookings();
+  if (name==='profile')       loadProfile();
+  if (name==='waitlist-view') loadWaitlist();
+}
+
+// ── Modals ────────────────────────────────────────────────────
+function openModal(id)  { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.modal-backdrop').forEach(m=>{
+  m.addEventListener('click',e=>{ if(e.target===m) m.classList.remove('open'); });
+});
+
+// ── Boot ──────────────────────────────────────────────────────
+if (token && user) {
+  initApp();
+} else {
+  document.getElementById('screen-auth').classList.add('active');
+}
 </script>
 </body>
 </html>

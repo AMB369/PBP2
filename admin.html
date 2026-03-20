@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Admin – The Padel Foundry</title>
+<style>
+:root{
+  --bg:#111827;--surface:#1e2847;--surface2:#253156;--border:#2e3d6a;
+  --accent:#7ab3e0;--accent2:#5a9fd4;--text:#eef2ff;--muted:#8899cc;
+  --success:#3ecf8e;--danger:#ff5c5c;--info:#60b4f0;--radius:14px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:-apple-system,'SF Pro Display',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;}
+
+/* ── Sidebar ── */
+.sidebar{width:220px;background:#172038;border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;height:100vh;position:sticky;top:0;}
+.sidebar-logo{padding:24px 20px 20px;border-bottom:1px solid var(--border);}
+.sidebar-logo .name{font-size:16px;font-weight:800;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.sidebar-logo .sub{font-size:11px;color:var(--muted);margin-top:2px;}
+.nav-menu{padding:16px 0;flex:1;}
+.nav-link{display:flex;align-items:center;gap:10px;padding:11px 20px;color:var(--muted);font-size:14px;font-weight:600;cursor:pointer;transition:.15s;border:none;background:none;width:100%;text-align:left;border-left:3px solid transparent;}
+.nav-link:hover{color:var(--text);background:#ffffff08;}
+.nav-link.active{color:var(--accent);background:#7ab3e015;border-left-color:var(--accent);}
+.nav-link svg{width:18px;height:18px;flex-shrink:0;}
+.sidebar-footer{padding:16px 20px;border-top:1px solid var(--border);}
+.sidebar-user{font-size:13px;font-weight:600;margin-bottom:4px;}
+.sidebar-email{font-size:11px;color:var(--muted);}
+.btn-logout{margin-top:10px;width:100%;padding:9px;background:transparent;border:1.5px solid var(--border);color:var(--muted);border-radius:8px;font-size:12px;cursor:pointer;transition:.15s;}
+.btn-logout:hover{color:var(--danger);border-color:var(--danger);}
+
+/* ── Main ── */
+.main{flex:1;overflow-y:auto;}
+.page{display:none;padding:28px;}
+.page.active{display:block;}
+.page-title{font-size:22px;font-weight:800;margin-bottom:6px;}
+.page-sub{font-size:13px;color:var(--muted);margin-bottom:24px;}
+
+/* ── Stat cards ── */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:16px;margin-bottom:28px;}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;}
+.stat-card .label{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;}
+.stat-card .value{font-size:32px;font-weight:800;margin-top:8px;color:var(--accent);}
+.stat-card .sub{font-size:12px;color:var(--muted);margin-top:4px;}
+
+/* ── Tables ── */
+.table-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;}
+.table-header{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--border);}
+.table-title{font-size:15px;font-weight:700;}
+table{width:100%;border-collapse:collapse;}
+th{padding:12px 16px;font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;text-align:left;border-bottom:1px solid var(--border);}
+td{padding:13px 16px;font-size:14px;border-bottom:1px solid var(--border);}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:#ffffff04;}
+.badge{display:inline-block;font-size:11px;font-weight:700;padding:3px 9px;border-radius:99px;}
+.badge-confirmed{background:#3ecf8e28;color:var(--success);}
+.badge-cancelled{background:#ff5c5c22;color:var(--danger);}
+.badge-completed{background:#ffffff18;color:var(--muted);}
+.badge-pending_payment{background:#7ab3e028;color:var(--accent);}
+.badge-admin{background:#60b4f028;color:var(--info);}
+.badge-player{background:#ffffff18;color:var(--muted);}
+.badge-active{background:#3ecf8e28;color:var(--success);}
+.badge-inactive{background:#ff5c5c22;color:var(--danger);}
+
+/* ── Inputs ── */
+.toolbar{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;}
+input[type=text],input[type=email],input[type=password],input[type=date],select{
+  background:var(--surface);border:1px solid var(--border);color:var(--text);
+  padding:10px 14px;border-radius:10px;font-size:14px;outline:none;transition:.2s;}
+input:focus,select:focus{border-color:var(--accent);}
+select option{background:var(--surface2);}
+.btn{padding:10px 18px;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;transition:.2s;}
+.btn-primary{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#1e2847;}
+.btn-danger{background:var(--danger);color:#fff;}
+.btn-ghost{background:transparent;border:1.5px solid var(--border);color:var(--text);}
+.btn-sm{padding:6px 12px;font-size:12px;}
+.btn:disabled{opacity:.5;cursor:not-allowed;}
+
+/* ── Auth overlay ── */
+#auth-overlay{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:100;}
+.auth-box{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:36px;width:340px;}
+.auth-box h2{font-size:22px;font-weight:800;margin-bottom:6px;}
+.auth-box p{font-size:13px;color:var(--muted);margin-bottom:24px;}
+.form-group{margin-bottom:14px;}
+.form-group label{display:block;font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:6px;}
+.form-group input{width:100%;}
+.auth-error{color:var(--danger);font-size:13px;margin-bottom:12px;display:none;}
+
+/* ── Toast ── */
+.toast{position:fixed;top:20px;right:20px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px 18px;font-size:14px;font-weight:600;z-index:999;opacity:0;pointer-events:none;transition:opacity .3s;}
+.toast.show{opacity:1;}
+.toast.success{border-color:var(--success);color:var(--success);}
+.toast.error{border-color:var(--danger);color:var(--danger);}
+.toast.info{border-color:var(--info);color:var(--info);}
+
+/* ── Court edit form ── */
+.court-edit-form{background:var(--surface2);border-radius:10px;padding:16px;margin-top:10px;display:none;}
+.court-edit-form.open{display:block;}
+.court-row{display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--border);}
+.court-row:last-child{border-bottom:none;}
+.court-info .cn{font-size:15px;font-weight:700;}
+.court-info .cs{font-size:12px;color:var(--muted);}
+
+/* ── Spinner ── */
+.spinner{width:24px;height:24px;border:2.5px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;margin:40px auto;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.empty-state{text-align:center;padding:40px;color:var(--muted);}
+</style>
+</head>
+<body>
+
+<!-- Auth overlay -->
+<div id="auth-overlay">
+  <div class="auth-box">
+    <h2>Admin Login</h2>
+    <p>The Padel Foundry Staff Portal</p>
+    <div id="admin-auth-error" class="auth-error"></div>
+    <div class="form-group"><label>Email</label><input id="a-email" type="email" placeholder="admin@padelfoundry.com" value="admin@padelfoundry.com"/></div>
+    <div class="form-group"><label>Password</label><input id="a-pass" type="password" placeholder="••••••••"/></div>
+    <button class="btn btn-primary" style="width:100%;padding:14px;" onclick="adminLogin()">Sign In</button>
+  </div>
+</div>
+
+<!-- Sidebar -->
+<nav class="sidebar">
+  <div class="sidebar-logo">
+    <div class="name">The Padel Foundry</div>
+    <div class="sub">Admin Dashboard</div>
+  </div>
+  <div class="nav-menu">
+    <button class="nav-link active" onclick="showPage('dashboard')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+      Dashboard
+    </button>
+    <button class="nav-link" onclick="showPage('bookings')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      Bookings
+    </button>
+    <button class="nav-link" onclick="showPage('members')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      Members
+    </button>
+    <button class="nav-link" onclick="showPage('courts')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>
+      Courts
+    </button>
+    <button class="nav-link" onclick="showPage('waitlist')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+      Waitlist
+    </button>
+  </div>
+  <div class="sidebar-footer">
+    <div class="sidebar-user" id="admin-name">Admin</div>
+    <div class="sidebar-email" id="admin-email">—</div>
+    <button class="btn-logout" onclick="adminLogout()">Sign Out</button>
+  </div>
+</nav>
+
+<!-- Main content -->
+<div class="main">
+
+  <!-- Dashboard -->
+  <div class="page active" id="page-dashboard">
+    <div class="page-title">Dashboard</div>
+    <div class="page-sub" id="dash-date">—</div>
+    <div class="stats-grid" id="stats-grid">
+      <div class="stat-card"><div class="label">Total Members</div><div class="value" id="st-members">—</div></div>
+      <div class="stat-card"><div class="label">Active Bookings</div><div class="value" id="st-bookings">—</div></div>
+      <div class="stat-card"><div class="label">Today's Bookings</div><div class="value" id="st-today">—</div></div>
+      <div class="stat-card"><div class="label">Active Courts</div><div class="value" id="st-courts">—</div></div>
+      <div class="stat-card"><div class="label">Total Revenue</div><div class="value" id="st-revenue" style="font-size:24px;">—</div></div>
+    </div>
+    <div class="table-wrap">
+      <div class="table-header"><div class="table-title">Today's Bookings</div><button class="btn btn-ghost btn-sm" onclick="loadDashboard()">Refresh</button></div>
+      <div id="today-table"></div>
+    </div>
+  </div>
+
+  <!-- Bookings -->
+  <div class="page" id="page-bookings">
+    <div class="page-title">All Bookings</div>
+    <div class="page-sub">Manage and cancel reservations</div>
+    <div class="toolbar">
+      <input type="date" id="filter-date" onchange="loadAllBookings()"/>
+      <select id="filter-status" onchange="loadAllBookings()">
+        <option value="">All statuses</option>
+        <option value="confirmed">Confirmed</option>
+        <option value="cancelled">Cancelled</option>
+        <option value="completed">Completed</option>
+      </select>
+      <button class="btn btn-ghost" onclick="loadAllBookings()">Refresh</button>
+    </div>
+    <div class="table-wrap"><div id="bookings-table"></div></div>
+  </div>
+
+  <!-- Members -->
+  <div class="page" id="page-members">
+    <div class="page-title">Members</div>
+    <div class="page-sub">View and manage player accounts</div>
+    <div class="toolbar">
+      <input type="text" id="member-search" placeholder="Search name or email…" oninput="loadMembers()"/>
+    </div>
+    <div class="table-wrap"><div id="members-table"></div></div>
+  </div>
+
+  <!-- Courts -->
+  <div class="page" id="page-courts">
+    <div class="page-title">Courts</div>
+    <div class="page-sub">Manage court availability and pricing</div>
+    <div id="courts-list"></div>
+  </div>
+
+  <!-- Waitlist -->
+  <div class="page" id="page-waitlist">
+    <div class="page-title">Waitlist</div>
+    <div class="page-sub">Players waiting for court slots</div>
+    <div class="table-wrap"><div id="waitlist-table"></div></div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const API = `http://${window.location.hostname}:3000/api`;
+let adminToken = localStorage.getItem('pf_admin_token');
+let adminUser  = JSON.parse(localStorage.getItem('pf_admin_user')||'null');
+
+async function api(path, opts={}) {
+  const headers = {'Content-Type':'application/json'};
+  if (adminToken) headers['Authorization'] = 'Bearer '+adminToken;
+  try {
+    const r = await fetch(API+path, {...opts, headers:{...headers,...(opts.headers||{})}});
+    const data = await r.json();
+    if (!r.ok) throw new Error(data.error||'Request failed');
+    return data;
+  } catch(e) {
+    if (e.message.includes('Failed to fetch')) throw new Error('Cannot connect to server');
+    throw e;
+  }
+}
+
+function toast(msg, type='success') {
+  const t = document.getElementById('toast');
+  t.textContent=msg; t.className='toast show '+type;
+  setTimeout(()=>t.className='toast',2800);
+}
+
+function fmtDT(iso) {
+  return new Date(iso).toLocaleDateString('en-AE',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'});
+}
+function fmtD(iso) {
+  return new Date(iso).toLocaleDateString('en-AE',{month:'short',day:'numeric',year:'numeric'});
+}
+
+// ── Auth ─────────────────────────────────────────────────────
+async function adminLogin() {
+  const email = document.getElementById('a-email').value.trim();
+  const pass  = document.getElementById('a-pass').value;
+  const errEl = document.getElementById('admin-auth-error');
+  errEl.style.display='none';
+  try {
+    const data = await api('/auth/login', {method:'POST', body:JSON.stringify({email,password:pass})});
+    if (data.user.role !== 'admin') { errEl.textContent='Admin access only'; errEl.style.display='block'; return; }
+    adminToken = data.token; adminUser = data.user;
+    localStorage.setItem('pf_admin_token', adminToken);
+    localStorage.setItem('pf_admin_user', JSON.stringify(adminUser));
+    document.getElementById('auth-overlay').style.display='none';
+    document.getElementById('admin-name').textContent  = adminUser.name;
+    document.getElementById('admin-email').textContent = adminUser.email;
+    loadDashboard();
+  } catch(e) { errEl.textContent=e.message; errEl.style.display='block'; }
+}
+
+function adminLogout() {
+  adminToken=null; adminUser=null;
+  localStorage.removeItem('pf_admin_token');
+  localStorage.removeItem('pf_admin_user');
+  document.getElementById('auth-overlay').style.display='flex';
+}
+
+// ── Pages ─────────────────────────────────────────────────────
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-link').forEach(n=>n.classList.remove('active'));
+  document.getElementById('page-'+name).classList.add('active');
+  document.querySelectorAll('.nav-link').forEach(n=>{if(n.textContent.trim().toLowerCase()===name||n.getAttribute('onclick').includes("'"+name+"'"))n.classList.add('active');});
+  if(name==='dashboard') loadDashboard();
+  if(name==='bookings')  loadAllBookings();
+  if(name==='members')   loadMembers();
+  if(name==='courts')    loadCourts();
+  if(name==='waitlist')  loadWaitlistAdmin();
+}
+
+// ── Dashboard ─────────────────────────────────────────────────
+async function loadDashboard() {
+  document.getElementById('dash-date').textContent = new Date().toLocaleDateString('en-AE',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
+  try {
+    const stats = await api('/admin/stats');
+    document.getElementById('st-members').textContent  = stats.total_members;
+    document.getElementById('st-bookings').textContent = stats.active_bookings;
+    document.getElementById('st-today').textContent    = stats.today_bookings;
+    document.getElementById('st-courts').textContent   = stats.active_courts;
+    document.getElementById('st-revenue').textContent  = 'AED '+Number(stats.total_revenue).toLocaleString();
+    // Today's bookings table
+    const today = new Date().toISOString().split('T')[0];
+    const bookings = await api('/admin/bookings?date='+today+'&status=confirmed');
+    renderBookingsTable(bookings, 'today-table', false);
+  } catch(e) { toast(e.message,'error'); }
+}
+
+// ── Bookings ──────────────────────────────────────────────────
+async function loadAllBookings() {
+  const date   = document.getElementById('filter-date').value;
+  const status = document.getElementById('filter-status').value;
+  const params = new URLSearchParams();
+  if (date)   params.set('date',date);
+  if (status) params.set('status',status);
+  try {
+    const data = await api('/admin/bookings?'+params.toString());
+    renderBookingsTable(data, 'bookings-table', true);
+  } catch(e) { toast(e.message,'error'); }
+}
+
+function renderBookingsTable(data, targetId, showCancel) {
+  const el = document.getElementById(targetId);
+  if (!data.length) { el.innerHTML='<div class="empty-state">No bookings found</div>'; return; }
+  el.innerHTML = `<table>
+    <thead><tr><th>Court</th><th>Member</th><th>Date & Time</th><th>Price</th><th>Status</th>${showCancel?'<th></th>':''}</tr></thead>
+    <tbody>${data.map(b=>`
+      <tr>
+        <td>${b.court_name}</td>
+        <td>${b.member_name}<br><span style="color:var(--muted);font-size:12px;">${b.member_email}</span></td>
+        <td>${fmtDT(b.start_time)}</td>
+        <td>AED ${b.price}</td>
+        <td><span class="badge badge-${b.status}">${b.status.replace('_',' ')}</span></td>
+        ${showCancel&&b.status==='confirmed'?`<td><button class="btn btn-danger btn-sm" onclick="adminCancelBooking('${b.id}')">Cancel</button></td>`:(showCancel?'<td></td>':'')}
+      </tr>`).join('')}
+    </tbody></table>`;
+}
+
+async function adminCancelBooking(id) {
+  if (!confirm('Cancel this booking?')) return;
+  try {
+    await api('/admin/bookings/'+id, {method:'DELETE'});
+    toast('Booking cancelled','info');
+    loadAllBookings();
+  } catch(e) { toast(e.message,'error'); }
+}
+
+// ── Members ───────────────────────────────────────────────────
+async function loadMembers() {
+  const q = document.getElementById('member-search').value.trim();
+  const params = q ? '?search='+encodeURIComponent(q) : '';
+  try {
+    const data = await api('/admin/members'+params);
+    const el = document.getElementById('members-table');
+    if (!data.length) { el.innerHTML='<div class="empty-state">No members found</div>'; return; }
+    el.innerHTML = `<table>
+      <thead><tr><th>Name</th><th>Email</th><th>Skill</th><th>Role</th><th>Joined</th><th>Status</th><th></th></tr></thead>
+      <tbody>${data.map(m=>`
+        <tr>
+          <td>${m.name}</td>
+          <td>${m.email}</td>
+          <td>${m.skill_level||'—'}</td>
+          <td><span class="badge badge-${m.role}">${m.role}</span></td>
+          <td>${fmtD(m.created_at)}</td>
+          <td><span class="badge badge-${m.is_active?'active':'inactive'}">${m.is_active?'Active':'Inactive'}</span></td>
+          <td><button class="btn btn-ghost btn-sm" onclick="toggleMember('${m.id}')">${m.is_active?'Deactivate':'Activate'}</button></td>
+        </tr>`).join('')}
+      </tbody></table>`;
+  } catch(e) { toast(e.message,'error'); }
+}
+
+async function toggleMember(id) {
+  try {
+    const r = await api('/admin/members/'+id+'/toggle', {method:'PATCH'});
+    toast(r.is_active?'Member activated':'Member deactivated', 'info');
+    loadMembers();
+  } catch(e) { toast(e.message,'error'); }
+}
+
+// ── Courts ────────────────────────────────────────────────────
+async function loadCourts() {
+  const el = document.getElementById('courts-list');
+  try {
+    const data = await api('/admin/courts');
+    el.innerHTML = data.map(c=>`
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px 20px;margin-bottom:12px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+          <div>
+            <div style="font-size:16px;font-weight:700;">${c.name}</div>
+            <div style="font-size:13px;color:var(--muted);margin-top:3px;">${c.surface_type} · AED ${c.price_per_hour}/hr</div>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <span class="badge badge-${c.is_active?'active':'inactive'}">${c.is_active?'Open':'Closed'}</span>
+            <button class="btn btn-ghost btn-sm" onclick="toggleCourtEdit('${c.id}')">Edit</button>
+          </div>
+        </div>
+        <div class="court-edit-form" id="court-edit-${c.id}">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
+            <div><label style="font-size:11px;color:var(--muted);display:block;margin-bottom:4px;">Name</label>
+              <input id="ce-name-${c.id}" type="text" value="${c.name}" style="width:100%;"/></div>
+            <div><label style="font-size:11px;color:var(--muted);display:block;margin-bottom:4px;">Price/hr (AED)</label>
+              <input id="ce-price-${c.id}" type="text" value="${c.price_per_hour}" style="width:100%;"/></div>
+            <div><label style="font-size:11px;color:var(--muted);display:block;margin-bottom:4px;">Surface</label>
+              <input id="ce-surface-${c.id}" type="text" value="${c.surface_type}" style="width:100%;"/></div>
+            <div><label style="font-size:11px;color:var(--muted);display:block;margin-bottom:4px;">Status</label>
+              <select id="ce-active-${c.id}" style="width:100%;">
+                <option value="true" ${c.is_active?'selected':''}>Open</option>
+                <option value="false" ${!c.is_active?'selected':''}>Closed</option>
+              </select>
+            </div>
+          </div>
+          <button class="btn btn-primary btn-sm" onclick="saveCourt('${c.id}')">Save Changes</button>
+        </div>
+      </div>`).join('');
+  } catch(e) { el.innerHTML='<div class="empty-state">'+e.message+'</div>'; }
+}
+
+function toggleCourtEdit(id) {
+  const el = document.getElementById('court-edit-'+id);
+  el.classList.toggle('open');
+}
+
+async function saveCourt(id) {
+  const body = {
+    name:         document.getElementById('ce-name-'+id).value,
+    price_per_hour: parseFloat(document.getElementById('ce-price-'+id).value),
+    surface_type: document.getElementById('ce-surface-'+id).value,
+    is_active:    document.getElementById('ce-active-'+id).value === 'true'
+  };
+  try {
+    await api('/admin/courts/'+id, {method:'PUT', body:JSON.stringify(body)});
+    toast('Court updated!','success');
+    loadCourts();
+  } catch(e) { toast(e.message,'error'); }
+}
+
+// ── Waitlist ──────────────────────────────────────────────────
+async function loadWaitlistAdmin() {
+  try {
+    const data = await api('/admin/waitlist');
+    const el = document.getElementById('waitlist-table');
+    if (!data.length) { el.innerHTML='<div class="empty-state">Waitlist is empty</div>'; return; }
+    el.innerHTML = `<table>
+      <thead><tr><th>Member</th><th>Court</th><th>Date</th><th>Time Slot</th><th>Status</th><th>Added</th></tr></thead>
+      <tbody>${data.map(w=>`
+        <tr>
+          <td>${w.member_name}<br><span style="color:var(--muted);font-size:12px;">${w.email}</span></td>
+          <td>${w.court_name}</td>
+          <td>${w.requested_date}</td>
+          <td>${w.requested_start.slice(0,5)}–${w.requested_end.slice(0,5)}</td>
+          <td><span class="badge badge-${w.status==='waiting'?'pending_payment':'confirmed'}">${w.status}</span></td>
+          <td>${fmtDT(w.created_at)}</td>
+        </tr>`).join('')}
+      </tbody></table>`;
+  } catch(e) { toast(e.message,'error'); }
+}
+
+// ── Boot ──────────────────────────────────────────────────────
+if (adminToken && adminUser?.role === 'admin') {
+  document.getElementById('auth-overlay').style.display='none';
+  document.getElementById('admin-name').textContent  = adminUser.name;
+  document.getElementById('admin-email').textContent = adminUser.email;
+  loadDashboard();
+}
+</script>
+</body>
+</html>

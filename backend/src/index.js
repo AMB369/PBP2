@@ -1,7 +1,6 @@
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
-require('dotenv').config({ path: path.join(__dirname, '../../.env') });
 const app = express();
 
 app.use(cors());
@@ -19,9 +18,8 @@ app.use('/api/notifications', require('./routes/notifications'));
 // ── Health ─────────────────────────────────────────────────
 app.get('/api/health', (req, res) => res.json({ status: 'ok', version: '2.0.0' }));
 
-// ── Static files — serves pbp-mobile.html, admin.html, icons, etc.
-// __dirname = .../PBP2/backend/src  →  ../.. = PBP2 root (works locally & in Docker)
-app.use(express.static(path.join(__dirname, '../..')));
+// ── Static files (/app/public is the PBP2 root folder, mounted via docker-compose)
+app.use(express.static(path.join(__dirname, '../public')));
 
 // ── 404 ────────────────────────────────────────────────────
 app.use((req, res) => res.status(404).json({ error: 'Not found' }));

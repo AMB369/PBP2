@@ -20,7 +20,7 @@ services:
   backend:
     image: node:18-alpine
     container_name: pbp-backend
-    working_dir: /app/backend
+    working_dir: /app
     environment:
       NODE_ENV: development
       PORT: 3000
@@ -32,7 +32,8 @@ services:
       postgres:
         condition: service_healthy
     volumes:
-      - .:/app
+      - ./backend:/app
+      - .:/app/public
     command: sh -c "npm install && npm start"
 volumes:
   postgres_data:

@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const path = require('path');
 const app = express();
 
 app.use(cors());
@@ -16,6 +17,9 @@ app.use('/api/notifications', require('./routes/notifications'));
 
 // ── Health ─────────────────────────────────────────────────
 app.get('/api/health', (req, res) => res.json({ status: 'ok', version: '2.0.0' }));
+
+// ── Static files (serves pbp-mobile.html, admin.html, icons, etc.) ─────────
+app.use(express.static(path.join(__dirname, '../../static')));
 
 // ── 404 ────────────────────────────────────────────────────
 app.use((req, res) => res.status(404).json({ error: 'Not found' }));

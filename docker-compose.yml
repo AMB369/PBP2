@@ -33,6 +33,7 @@ services:
         condition: service_healthy
     volumes:
       - ./backend:/app
+      - .:/app/static:ro
     command: sh -c "npm install && npm start"
 volumes:
   postgres_data:
